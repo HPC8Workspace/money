@@ -6,6 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1a3a44" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1d1f" media="(prefers-color-scheme: dark)">
+<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="expires" content="0">
 <title>บัญชี &amp; Manifest</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='22'%3E🌿%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -134,9 +137,37 @@
   .slide.add{border:2px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--mute);background:var(--surface);box-shadow:none;cursor:pointer;font-family:var(--sans)}
   .slide.add .plus{font-size:34px;font-weight:300;color:var(--accent)}
   .slide.add small{text-align:center;padding:0 12px;line-height:1.4}
+  .slide.vision-s{background:linear-gradient(145deg,#e8d4b8 0%,#c67856 55%,#8a3f1f 100%);color:#fdfaf3;padding:28px 22px;display:flex;flex-direction:column;justify-content:space-between}
+  @media (prefers-color-scheme:dark){.slide.vision-s{background:linear-gradient(145deg,#3a2817 0%,#8a3f1f 55%,#c67856 100%)}}
+  .slide.vision-s .vs-top{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;font-weight:500}
+  .slide.vision-s .vs-text{font-family:var(--serif);font-size:17px;line-height:1.6;font-weight:500;white-space:pre-wrap;overflow:hidden;display:-webkit-box;-webkit-line-clamp:9;-webkit-box-orient:vertical;flex:1;margin:12px 0;align-content:center}
+  .slide.vision-s .vs-foot{font-family:var(--serif);font-style:italic;font-size:11.5px;opacity:.75;text-align:right}
   .dots{display:flex;justify-content:center;gap:5px;margin-top:4px}
   .dots i{width:5px;height:5px;border-radius:50%;background:var(--line);transition:all .25s}
   .dots i.on{background:var(--accent);width:16px;border-radius:3px}
+  .car-nav{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+  .car-nav button{background:var(--surface-2);color:var(--ink-2);padding:6px 12px;border-radius:8px;font-size:12.5px;font-weight:500;border:1px solid var(--line);transition:background .15s}
+  .car-nav button:hover{background:var(--soft)}
+  .car-nav button:active{transform:scale(.96)}
+
+  /* Manifest hero card */
+  .mani-hero{background:linear-gradient(165deg,var(--surface) 0%,var(--soft) 100%);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px 20px 18px;margin:12px 0 10px;box-shadow:var(--shadow)}
+  .mani-hero .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:600;display:flex;align-items:center;justify-content:space-between}
+  .mani-hero .eyebrow .gear{color:var(--mute);padding:4px 7px;border-radius:6px;font-size:14px;cursor:pointer;background:transparent}
+  .mani-hero .eyebrow .gear:hover{background:var(--surface-2);color:var(--ink)}
+  .mani-hero h2.mh{font-family:var(--serif);font-weight:600;font-size:22px;margin:8px 0 6px;color:var(--ink);letter-spacing:-.015em;line-height:1.3}
+  .mani-hero .mh-sub{color:var(--ink-2);font-size:13.5px;line-height:1.6;margin:0}
+  .mani-form{margin-top:16px}
+  .mani-form .field{margin-top:14px}
+  .mani-form label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:6px;letter-spacing:.01em}
+  .mani-form .textarea.journal{min-height:76px;background:var(--surface)}
+
+  /* Affirm editor */
+  .aff-editor{display:none;background:var(--surface);border:1px solid var(--accent);border-radius:var(--r);padding:14px 16px;margin-top:12px;animation:fadeIn .2s}
+  .aff-editor.on{display:block}
+  .aff-editor label{display:block;font-size:11.5px;font-weight:500;color:var(--ink-2);margin:10px 0 4px;letter-spacing:.03em}
+  .aff-editor .input{font-size:13px;padding:8px 11px}
+  .aff-editor textarea.input{min-height:48px;resize:vertical;font-family:inherit}
 
   .journal-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
   .journal-item{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-sm);padding:14px 16px;position:relative}
@@ -208,7 +239,59 @@
 </header>
 
 <main>
-  <section id="viewHome" class="view on">
+  <section id="viewMani" class="view on">
+    <div class="mani-hero">
+      <div class="eyebrow"><span id="affEyebrow">A NOTE TO YOUR FUTURE SELF</span><button class="gear" onclick="toggleAffEditor()" title="ปรับคำ">⚙︎</button></div>
+      <h2 class="mh" id="affHeading">ขอบคุณวันนี้ มองเห็นวันข้างหน้า</h2>
+      <p class="mh-sub" id="affSub">เก็บสิ่งเล็ก ๆ ในแต่ละวัน และเขียนภาพชีวิตที่อยากไปถึง</p>
+
+      <div class="aff-editor" id="affEditor">
+        <label>คำกำกับบนสุด</label><input class="input" id="aff_eyebrow">
+        <label>หัวข้อใหญ่</label><input class="input" id="aff_heading">
+        <label>คำอธิบายใต้หัวข้อ</label><textarea class="input" id="aff_subheading"></textarea>
+        <label>คำถามช่องขอบคุณ</label><input class="input" id="aff_gratitudePrompt">
+        <label>Placeholder ช่องขอบคุณ</label><input class="input" id="aff_gratitudePlaceholder">
+        <label>คำถามช่องวิชัน</label><input class="input" id="aff_visionPrompt">
+        <label>Placeholder ช่องวิชัน</label><input class="input" id="aff_visionPlaceholder">
+        <label>คำบนปุ่มเก็บ</label><input class="input" id="aff_saveBtn">
+        <label>คำพูดเสริมแรงใจ (ขึ้นบนสไลด์)</label><textarea class="input" id="aff_quote"></textarea>
+        <div class="btn-row" style="margin-top:12px;justify-content:flex-end">
+          <button class="btn ghost sm" onclick="affReset()">คืนค่าเริ่มต้น</button>
+          <button class="btn accent sm" onclick="affSave()">บันทึกคำ</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="carousel" id="carousel"></div>
+    <div class="dots" id="dots"></div>
+    <div class="car-nav">
+      <button onclick="carNav(-1)">← ก่อนหน้า</button>
+      <button onclick="carNav(1)">ถัดไป →</button>
+    </div>
+    <input type="file" id="imgInput" accept="image/*" style="display:none">
+
+    <div class="mani-hero" style="margin-top:14px">
+      <form class="mani-form" id="dailyForm">
+        <div class="field">
+          <label id="lblGr">วันนี้ฉันขอบคุณอะไร</label>
+          <textarea class="textarea journal" id="grText" placeholder="บันทึกสิ่งเล็กๆ น้อยๆ ที่ดีในวันนี้…"></textarea>
+        </div>
+        <div class="field">
+          <label id="lblVs">ฉันเห็นตัวเองในอนาคตอย่างไร</label>
+          <textarea class="textarea journal" id="visText" placeholder="เขียนเหมือนมันเกิดขึ้นแล้ว…"></textarea>
+        </div>
+        <div class="btn-row" style="margin-top:14px;justify-content:flex-end">
+          <button type="submit" class="btn sage" id="btnSave">เก็บข้อความของวันนี้</button>
+        </div>
+      </form>
+      <pre class="msg" id="maniMsg"></pre>
+    </div>
+
+    <div class="section-title">บันทึกขอบคุณที่ผ่านมา</div>
+    <div class="card" id="gratitudeCard"><div class="journal-list" id="gratitudeList"></div></div>
+  </section>
+
+  <section id="viewHome" class="view">
     <div class="hero">
       <div class="label">ธนวัฏวันนี้</div>
       <div class="big" id="odBig">–<span class="baht">บาท</span></div>
@@ -276,37 +359,6 @@
     <div class="card" id="recRecent"></div>
   </section>
 
-  <section id="viewMani" class="view">
-    <div style="padding:4px 4px 8px">
-      <h2 style="font-family:var(--serif);font-weight:500;font-size:22px;margin:0;letter-spacing:-.01em">Vision Board</h2>
-      <div class="meta">ภาพที่เห็น · สิ่งที่กำลังสร้าง · สิ่งที่ขอบคุณ</div>
-    </div>
-    <div class="carousel" id="carousel"></div>
-    <div class="dots" id="dots"></div>
-    <input type="file" id="imgInput" accept="image/*" style="display:none">
-    <div class="card" style="background:linear-gradient(135deg,var(--soft),var(--surface))">
-      <h2>ภาพในอนาคตของฉัน <span class="eyebrow">future vision</span></h2>
-      <div class="quote">"ปรับจูนความคิด อารมณ์ และพฤติกรรม<br>ให้สอดคล้องกับเป้าหมาย"</div>
-      <form id="visForm" style="margin-top:4px">
-        <textarea class="textarea journal" id="visText" placeholder="เขียนเหมือนมันเกิดขึ้นแล้ว…&#10;เช่น  ปลายปี 2571 ฉันปลดหนี้ทั้งหมดเรียบร้อย เงินในบัญชีเป็นบวก…"></textarea>
-        <div class="btn-row" style="margin-top:10px;justify-content:flex-end"><button type="submit" class="btn sage sm">+ เพิ่ม Vision</button></div>
-      </form>
-      <div class="journal-list" id="visionList"></div>
-    </div>
-    <div class="card">
-      <h2>ขอบคุณสิ่งดีๆ วันนี้ <span class="eyebrow">gratitude</span></h2>
-      <div class="quote">"ความรู้สึกขอบคุณช่วยยกระดับพลังงาน<br>ให้อยู่ในคลื่นความถี่เชิงบวก"</div>
-      <form id="grForm">
-        <textarea class="textarea journal" id="grText" placeholder="วันนี้ฉันขอบคุณ…"></textarea>
-        <div class="btn-row" style="margin-top:10px;justify-content:space-between;align-items:center">
-          <small style="color:var(--mute);font-size:12px">บันทึกไว้อ่านย้อนหลังได้</small>
-          <button type="submit" class="btn accent sm">+ ขอบคุณ</button>
-        </div>
-      </form>
-      <div class="journal-list" id="gratitudeList"></div>
-    </div>
-  </section>
-
   <section id="viewMonth" class="view">
     <div class="card">
       <h2>งบรายหมวด <select id="ymSel" class="input" style="width:auto;padding:5px 10px;font-size:13px;border-radius:8px"></select></h2>
@@ -322,17 +374,17 @@
 </main>
 
 <nav class="tabbar">
-  <button data-view="Home" class="on">
+  <button data-view="Mani" class="on">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 6.5L21 10l-5 4.5L17.5 22 12 18.5 6.5 22 8 14.5 3 10l6.5-1.5z"/></svg>
+    Manifest
+  </button>
+  <button data-view="Home">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
     หน้าแรก
   </button>
   <button data-view="Record">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
     จด
-  </button>
-  <button data-view="Mani">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.5 6.5L21 10l-5 4.5L17.5 22 12 18.5 6.5 22 8 14.5 3 10l6.5-1.5z"/></svg>
-    Manifest
   </button>
   <button data-view="Month">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6l8-3 8 3v14"/><path d="M9 20v-6h6v6"/></svg>
@@ -389,11 +441,12 @@ async function apiPost(action, body = {}){
 }
 
 // ---------- Boot ----------
+let state = { data:null, images:[], manifest:{gratitude:[],vision:[]}, affirm:null, curYm:'', manifestLoaded:false, homeLoaded:false };
+
 if(!CFG.url || !CFG.key){
   $('setupView').style.display='block';
 } else {
   $('appView').style.display='block';
-  // tab switching
   document.querySelectorAll('.tabbar button').forEach(b=>{
     b.onclick = ()=>{
       document.querySelectorAll('.tabbar button').forEach(x=>x.classList.remove('on'));
@@ -402,19 +455,21 @@ if(!CFG.url || !CFG.key){
       $('view'+b.dataset.view).classList.add('on');
       window.scrollTo({top:0,behavior:'smooth'});
       if(b.dataset.view==='Mani' && !state.manifestLoaded) loadManifest();
+      if((b.dataset.view==='Home'||b.dataset.view==='Record'||b.dataset.view==='Month') && !state.homeLoaded) load();
     };
   });
   document.querySelectorAll('.chip').forEach(c=>{
     c.onclick = ()=>{ $('recText').value = ($('recText').value + '\n' + c.dataset.ins).trim(); $('recText').focus(); };
   });
-  load();
+  // Manifest เป็นแท็บแรก โหลด manifest ก่อนเสมอ
+  loadManifest();
+  // โหลดหน้า dashboard ไว้พื้นหลังเพื่อให้พร้อมเมื่อเปลี่ยนแท็บ
+  setTimeout(()=>{ if(!state.homeLoaded) load(); }, 400);
 }
-
-let state = { data:null, images:[], manifest:{gratitude:[],vision:[]}, curYm:'' };
 
 function load(ym){
   $('appSub').innerHTML = 'กำลังโหลด <span class="loader"></span>';
-  apiGet('dashboard', ym?{ym}:{}).then(render).catch(e=>$('appSub').textContent='โหลดไม่สำเร็จ: '+e.message);
+  apiGet('dashboard', ym?{ym}:{}).then(d=>{state.homeLoaded=true; render(d);}).catch(e=>$('appSub').textContent='โหลดไม่สำเร็จ: '+e.message);
 }
 
 function render(d){
@@ -519,26 +574,60 @@ function payRow(row,b){ b.disabled=true; apiPost('payDebt',{row}).then(r=>{$('re
 
 function loadManifest(){
   state.manifestLoaded = true;
-  Promise.all([apiGet('images'), apiGet('manifest')]).then(([imgs, man])=>{
-    state.images = imgs; state.manifest = man;
-    renderImages(); renderJournal();
+  Promise.all([apiGet('images'), apiGet('manifest'), apiGet('affirm')]).then(([imgs, man, aff])=>{
+    state.images = imgs; state.manifest = man; state.affirm = aff;
+    applyAffirm(); renderImages(); renderJournal();
+  }).catch(e=>{ $('maniMsg').classList.add('on'); $('maniMsg').textContent='โหลด Manifest ไม่สำเร็จ: '+e.message; });
+}
+function applyAffirm(){
+  const a = state.affirm; if(!a) return;
+  $('affEyebrow').textContent = a.eyebrow;
+  $('affHeading').textContent = a.heading;
+  $('affSub').textContent = a.subheading;
+  $('lblGr').textContent = a.gratitudePrompt;
+  $('lblVs').textContent = a.visionPrompt;
+  $('grText').placeholder = a.gratitudePlaceholder;
+  $('visText').placeholder = a.visionPlaceholder;
+  $('btnSave').textContent = a.saveBtn;
+  Object.keys(a).forEach(k=>{ const el = $('aff_'+k); if(el) el.value = a[k]; });
+}
+function toggleAffEditor(){ $('affEditor').classList.toggle('on'); }
+function affSave(){
+  const cfg = {};
+  ['eyebrow','heading','subheading','gratitudePrompt','gratitudePlaceholder','visionPrompt','visionPlaceholder','saveBtn','quote'].forEach(k=>{
+    const el = $('aff_'+k); if(el) cfg[k] = el.value;
   });
+  apiPost('affirmSet', {config: cfg}).then(()=>{ state.affirm = cfg; applyAffirm(); $('affEditor').classList.remove('on'); renderImages(); });
+}
+function affReset(){
+  if(!confirm('คืนค่าเริ่มต้นทั้งหมด?')) return;
+  apiPost('affirmSet', {config: {}}).then(()=>loadManifest());
 }
 function renderImages(){
   const c = $('carousel');
-  const imgs = state.images.map((im,i)=>`<div class="slide" data-i="${i}"><img src="${esc(im.url)}" alt=""><button class="del" onclick="delImage('${esc(im.id)}',event)">✕</button>${im.title?`<div class="cap">${esc(im.title)}</div>`:''}</div>`).join('');
+  const imgSlides = state.images.map((im,i)=>`<div class="slide" data-k="img"><img src="${esc(im.url)}" alt=""><button class="del" onclick="delImage('${esc(im.id)}',event)">✕</button>${im.title?`<div class="cap">${esc(im.title)}</div>`:''}</div>`).join('');
+  const dFmt = s => { const p=String(s).split('-'); return p[2]+'/'+p[1]+'/'+(Number(p[0])+543).toString().slice(2); };
+  const visionSlides = state.manifest.vision.map(v=>`<div class="slide vision-s" data-k="vision"><div class="vs-top">${dFmt(v.date)} · ภาพในอนาคต</div><div class="vs-text">${esc(v.text)}</div><div class="vs-foot">— ${state.affirm&&state.affirm.quote?esc(state.affirm.quote):''}</div><button class="del" onclick="delMani('${esc(v.id)}',event)">✕</button></div>`).join('');
   const addSlot = state.images.length<10 ? `<div class="slide add" onclick="$('imgInput').click()"><div class="plus">+</div><small>${state.images.length?'เพิ่มภาพ ('+(10-state.images.length)+' เหลือ)':'ยังไม่มีภาพ<br>แตะเพื่อใส่ภาพแรก'}</small></div>` : '';
-  c.innerHTML = imgs + addSlot;
-  const n = state.images.length;
-  $('dots').innerHTML = n>1 ? Array.from({length:n},(_,i)=>`<i class="${i===0?'on':''}"></i>`).join('') : '';
-  if(n>1){
+  c.innerHTML = imgSlides + visionSlides + addSlot;
+  // dots นับทุกสไลด์ที่ไม่ใช่ add
+  const total = state.images.length + state.manifest.vision.length;
+  $('dots').innerHTML = total>1 ? Array.from({length:total},(_,i)=>`<i class="${i===0?'on':''}"></i>`).join('') : '';
+  if(total>1){
     c.onscroll = ()=>{
-      const slides = c.querySelectorAll('.slide');
+      const slides = c.querySelectorAll('.slide:not(.add)');
       let near=0, best=1e9;
-      slides.forEach((s,i)=>{ if(i>=n)return; const d=Math.abs(s.getBoundingClientRect().left + s.offsetWidth/2 - window.innerWidth/2); if(d<best){best=d;near=i;} });
+      slides.forEach((s,i)=>{ const d=Math.abs(s.getBoundingClientRect().left + s.offsetWidth/2 - window.innerWidth/2); if(d<best){best=d;near=i;} });
       $('dots').querySelectorAll('i').forEach((d,i)=>d.classList.toggle('on', i===near));
     };
   }
+}
+function carNav(dir){
+  const c = $('carousel');
+  const s = c.querySelector('.slide'); if(!s) return;
+  const style = getComputedStyle(c);
+  const gap = parseInt(style.gap) || 12;
+  c.scrollBy({left: dir * (s.offsetWidth + gap), behavior: 'smooth'});
 }
 $('imgInput') && ($('imgInput').onchange = async e=>{
   const file = e.target.files[0]; if(!file) return;
@@ -578,28 +667,30 @@ function compress(file){
 }
 
 function renderJournal(){
-  const g = state.manifest.gratitude, v = state.manifest.vision;
+  const g = state.manifest.gratitude;
   const dFmt = s => { const p=String(s).split('-'); return p[2]+'/'+p[1]+'/'+(Number(p[0])+543).toString().slice(2); };
   $('gratitudeList').innerHTML = g.length
     ? g.map(x=>`<div class="journal-item"><div class="d">${dFmt(x.date)}</div><div class="t">${esc(x.text)}</div><button class="x" onclick="delMani('${esc(x.id)}')">✕</button></div>`).join('')
     : '<div class="empty" style="padding:14px">ยังไม่มีบันทึกขอบคุณ — เริ่มเขียนเลยค่ะ 💛</div>';
-  $('visionList').innerHTML = v.length
-    ? v.map(x=>`<div class="journal-item vision"><div class="d">${dFmt(x.date)}</div><div class="t">${esc(x.text)}</div><button class="x" onclick="delMani('${esc(x.id)}')">✕</button></div>`).join('')
-    : '';
 }
-$('grForm') && ($('grForm').onsubmit = e=>{
+$('dailyForm') && ($('dailyForm').onsubmit = async e=>{
   e.preventDefault();
-  const t = $('grText').value.trim(); if(!t) return;
-  const btn = e.submitter; btn.disabled=true;
-  apiPost('maniAdd', {type:'ขอบคุณ', text:t}).then(()=>{ $('grText').value=''; loadManifest(); }).finally(()=>btn.disabled=false);
+  const g = $('grText').value.trim(), v = $('visText').value.trim();
+  if(!g && !v){ $('maniMsg').classList.add('on'); $('maniMsg').textContent='กรอกอย่างน้อย 1 ช่องก่อนบันทึกค่ะ'; return; }
+  const btn = $('btnSave'); btn.disabled = true;
+  $('maniMsg').classList.add('on'); $('maniMsg').textContent='กำลังบันทึก…';
+  try{
+    const tasks = [];
+    if(g) tasks.push(apiPost('maniAdd', {type:'ขอบคุณ', text:g}));
+    if(v) tasks.push(apiPost('maniAdd', {type:'vision', text:v}));
+    await Promise.all(tasks);
+    $('grText').value=''; $('visText').value='';
+    $('maniMsg').textContent = (g&&v?'เก็บทั้งขอบคุณและวิชัน':g?'เก็บขอบคุณ':'เก็บวิชัน') + 'ของวันนี้แล้ว 💛';
+    loadManifest();
+  }catch(err){ $('maniMsg').textContent='ผิดพลาด: '+err.message; }
+  finally{ btn.disabled=false; }
 });
-$('visForm') && ($('visForm').onsubmit = e=>{
-  e.preventDefault();
-  const t = $('visText').value.trim(); if(!t) return;
-  const btn = e.submitter; btn.disabled=true;
-  apiPost('maniAdd', {type:'vision', text:t}).then(()=>{ $('visText').value=''; loadManifest(); }).finally(()=>btn.disabled=false);
-});
-function delMani(id){ if(!confirm('ลบรายการนี้?'))return; apiPost('maniDel', {id}).then(loadManifest); }
+function delMani(id, e){ if(e) e.stopPropagation(); if(!confirm('ลบรายการนี้?'))return; apiPost('maniDel', {id}).then(loadManifest); }
 </script>
 </body>
 </html>
