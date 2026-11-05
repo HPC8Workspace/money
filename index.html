@@ -6,9 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1a3a44" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1d1f" media="(prefers-color-scheme: dark)">
-<meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="expires" content="0">
 <title>บัญชี &amp; Manifest</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='22'%3E🌿%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,6 +207,15 @@
   .setup p{color:var(--mute);font-size:13.5px;margin:0 0 18px;line-height:1.6}
   .setup label{display:block;font-size:12px;color:var(--ink-2);font-weight:500;letter-spacing:.03em;margin:12px 0 4px}
   .setup .input{font-size:13.5px}
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:999}
+  .sheet-bg.on{display:flex}
+  .sheet-box{background:var(--card,var(--bg,#fff));width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
+  .fl{display:block;font-size:12px;opacity:.8;margin-top:10px}
+  .fl .input{margin-top:4px;width:100%;box-sizing:border-box}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .chk{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:12px}
+  .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#333;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:.25s;z-index:1000;pointer-events:none;max-width:90vw;white-space:pre-line}
+  .toast.on{opacity:.95}
 </style>
 </head>
 <body>
@@ -369,8 +375,37 @@
     </div>
     <div class="card"><h2>หนี้ผ่อนคงเหลือ</h2><div id="debtList"></div></div>
     <div class="card" id="duesCard" style="display:none"><h2>เพื่อนค้างค่าสมาชิก</h2><div id="duesList"></div></div>
+    <div class="card">
+    <h2>รายการทั้งเดือน <input id="txSearch" class="input" placeholder="ค้นหา…" oninput="renderTxAll()" style="width:130px;padding:5px 10px;font-size:13px;border-radius:8px"></h2>
+    <div id="txAll"></div>
+  </div>
     <div class="sheet-link"><a id="sheetLink" target="_blank">↗ เปิด Google Sheet</a> &nbsp;·&nbsp; <a href="javascript:resetSetup()">⚙️ ตั้งค่าใหม่</a></div>
   </section>
+  <section id="viewAlert" class="view">
+  <div class="card">
+    <h2>เตือนความจำ <span class="eyebrow">พิมพ์แบบใน LINE ได้</span></h2>
+    <textarea class="textarea" id="remText" placeholder="เช่น ไปอัพเดตทะเบียนบ้านให้โจ้ 6 พ.ย.69 08.00&#10;จ่ายค่าไฟ ทุกวันที่ 25 9 โมง&#10;โทรหาแม่ พรุ่งนี้ 2 ทุ่ม"></textarea>
+    <div class="btn-row" style="justify-content:space-between;margin-top:10px">
+      <button class="btn ghost sm" onclick="editRem('')">+ ตั้งแบบเลือกวันเวลา</button>
+      <button class="btn accent" onclick="addRem(this)">ตั้งเตือน</button>
+    </div>
+    <div id="remList" style="margin-top:10px"></div>
+  </div>
+  <div class="card"><h2>เตือนจ่ายหนี้/บิล</h2><div id="setBox"></div></div>
+  <div class="card">
+    <h2>งวดที่ต้องจ่าย <button class="btn ghost sm" onclick="editDebt(0)">+ เพิ่ม</button></h2>
+    <label class="chk"><input type="checkbox" id="debtAll" onchange="renderDebts()"> แสดงทั้งหมด (รวมงวดอนาคต/จ่ายแล้ว)</label>
+    <div id="debtEdit"></div>
+  </div>
+  <div class="card"><h2>คำที่เรียนรู้ <button class="btn ghost sm" onclick="addLearn()">+ สอนคำ</button></h2><div id="learnList"></div></div>
+  <div class="card plain"><small id="quotaBox"></small></div>
+</section>
+
+<div id="sheetBg" class="sheet-bg" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet-box"><h2 id="sheetTitle"></h2><div id="sheetBody"></div></div>
+</div>
+<div id="toast" class="toast"></div>
+<datalist id="dlCat"></datalist><datalist id="dlPay"></datalist>
 </main>
 
 <nav class="tabbar">
@@ -389,6 +424,10 @@
   <button data-view="Month">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V6l8-3 8 3v14"/><path d="M9 20v-6h6v6"/></svg>
     สรุปเดือน
+  </button>
+    <button data-view="Alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+    เตือน
   </button>
 </nav>
 
@@ -510,7 +549,9 @@ function render(d){
       + t.slice(0,8).map(x=>`<div class="row"><div class="main"><strong>${esc(x.desc)}</strong><small>${esc(x.cat)}${x.sub?' › '+esc(x.sub):''} · ${esc(x.pay)}</small></div><div class="amt ${x.type==='รายรับ'||x.type==='รับคืน'?'pos':''}">${x.type==='รายรับ'||x.type==='รับคืน'?'+':''}${f(x.amount)}</div></div>`).join('')
     : '<div class="empty">ยังไม่มีรายการวันนี้ — ไปที่แท็บ "จด" เลยค่ะ</div>';
 
-  $('recRecent').innerHTML = d.tx.slice(0,10).map(x=>`<div class="row"><div class="main"><strong>${esc(x.desc)}</strong><small>${x.date} · ${esc(x.cat)} · ${esc(x.pay)}</small></div><div style="display:flex;gap:4px;align-items:center"><span class="amt ${x.type==='รายรับ'||x.type==='รับคืน'?'pos':''}">${x.type==='รายรับ'||x.type==='รับคืน'?'+':''}${f(x.amount)}</span><button class="del-btn" onclick="delTx('${esc(x.id)}',this)">✕</button></div></div>`).join('') || '<div class="empty">ยังไม่มีรายการ</div>';
+  $('recRecent').innerHTML = d.tx.slice(0,10).map(txRow).join('') || '<div class="empty">ยังไม่มีรายการ</div>';
+  renderTxAll();
+
 
   const sel = $('ymSel');
   if(!sel.options.length){
@@ -691,6 +732,194 @@ $('dailyForm') && ($('dailyForm').onsubmit = async e=>{
   finally{ btn.disabled=false; }
 });
 function delMani(id, e){ if(e) e.stopPropagation(); if(!confirm('ลบรายการนี้?'))return; apiPost('maniDel', {id}).then(loadManifest); }
+
+/* ===== V2 ===== */
+const escA = s => String(s ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const pad2 = n => String(n).padStart(2,'0');
+const isoLocal = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const thDate = iso => { if(!iso) return '-'; const [y,m,d]=iso.slice(0,10).split('-'); return `${+d}/${+m}/${String(+y+543).slice(2)}`; };
+function toast(t){ const el=$('toast'); el.textContent=t; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2800); }
+function openSheet(title, html){ $('sheetTitle').textContent=title; $('sheetBody').innerHTML=html; $('sheetBg').classList.add('on'); }
+function closeSheet(){ $('sheetBg').classList.remove('on'); }
+const btns = (save) => `<div class="btn-row" style="justify-content:space-between;margin-top:16px"><button class="btn ghost sm" onclick="closeSheet()">ยกเลิก</button>${save}</div>`;
+
+let META=null;
+async function ensureMeta(){
+  if(META) return META;
+  META = await apiGet('meta');
+  $('dlCat').innerHTML = META.cats.map(c=>`<option value="${escA(c)}">`).join('');
+  $('dlPay').innerHTML = META.pays.map(c=>`<option value="${escA(c)}">`).join('');
+  return META;
+}
+
+/* --- รายการ: แก้ไข --- */
+function txRow(x){
+  const pos = x.type==='รายรับ'||x.type==='รับคืน';
+  return `<div class="row"><div class="main"><strong>${esc(x.desc)}</strong><small>${x.date} · ${esc(x.cat)}${x.sub?' › '+esc(x.sub):''} · ${esc(x.pay)}</small></div>
+  <div style="display:flex;gap:4px;align-items:center"><span class="amt ${pos?'pos':''}">${pos?'+':''}${f(x.amount)}</span>
+  <button class="del-btn" onclick="editTx('${x.id}')">✎</button><button class="del-btn" onclick="delTx('${x.id}',this)">✕</button></div></div>`;
+}
+function renderTxAll(){
+  if(!$('txAll')) return;
+  const q = ($('txSearch').value||'').trim().toLowerCase();
+  const L = (state.data?.tx||[]).filter(x=>!q || `${x.desc} ${x.cat} ${x.pay} ${x.amount}`.toLowerCase().includes(q));
+  $('txAll').innerHTML = L.length ? L.map(txRow).join('') : '<div class="empty">ไม่มีรายการ</div>';
+}
+async function editTx(id){
+  const x = (state.data?.tx||[]).find(t=>t.id===id); if(!x) return;
+  ensureMeta().catch(()=>{});
+  openSheet('แก้ไขรายการ', `
+    <label class="fl">รายละเอียด<input class="input" id="eDesc" value="${escA(x.desc)}"></label>
+    <div class="grid2">
+      <label class="fl">จำนวนเงิน<input class="input" id="eAmt" type="number" step="0.01" inputmode="decimal" value="${x.amount}"></label>
+      <label class="fl">วันที่<input class="input" id="eDate" type="date" value="${x.iso||''}"></label>
+    </div>
+    <div class="grid2">
+      <label class="fl">ประเภท<select class="input" id="eType">${['รายจ่าย','รายรับ','รับคืน','ชำระหนี้'].map(t=>`<option ${t===x.type?'selected':''}>${t}</option>`).join('')}</select></label>
+      <label class="fl">ช่องทางจ่าย<input class="input" id="ePay" list="dlPay" value="${escA(x.pay)}"></label>
+    </div>
+    <div class="grid2">
+      <label class="fl">หมวด<input class="input" id="eCat" list="dlCat" value="${escA(x.cat)}"></label>
+      <label class="fl">หมวดย่อย<input class="input" id="eSub" value="${escA(x.sub||'')}"></label>
+    </div>
+    <label class="chk"><input type="checkbox" id="eLearn" checked> ถ้าเปลี่ยนหมวด ให้จำคำนี้ไว้ใช้ครั้งหน้า</label>
+    ${btns(`<button class="btn accent" id="eSave" onclick="saveTx('${x.id}')">บันทึก</button>`)}`);
+}
+async function saveTx(id){
+  const b=$('eSave'); b.disabled=true; b.textContent='กำลังบันทึก…';
+  try{
+    const r = await apiPost('txUpdate',{id, desc:$('eDesc').value.trim(), amount:$('eAmt').value, date:$('eDate').value,
+      type:$('eType').value, pay:$('ePay').value.trim(), cat:$('eCat').value.trim(), sub:$('eSub').value.trim(), learn:$('eLearn').checked});
+    closeSheet(); toast(r.msg); load(state.curYm);
+  }catch(e){ alert('บันทึกไม่สำเร็จ: '+e.message); b.disabled=false; b.textContent='บันทึก'; }
+}
+
+/* --- แท็บเตือน --- */
+const AL = {rem:[], debts:[], learned:[], settings:{}};
+async function loadAlert(){
+  $('remList').innerHTML = '<div class="empty">กำลังโหลด…</div>';
+  try{
+    Object.assign(AL, await apiGet('alerts'));
+    renderRem(); renderSettings(); renderDebts(); renderLearned();
+    ensureMeta().catch(()=>{});
+    apiGet('quota').then(q=>{ $('quotaBox').textContent = `📊 ข้อความอัตโนมัติ (push) เดือนนี้: ใช้ไป ${q.used}${q.limit?' / '+q.limit:''} ข้อความ · การตอบกลับแชทไม่นับ`; }).catch(()=>{});
+  }catch(e){ $('remList').innerHTML = '<div class="empty">โหลดไม่สำเร็จ: '+esc(e.message)+'</div>'; }
+}
+function renderRem(){
+  $('remList').innerHTML = AL.rem.length ? AL.rem.map((x,i)=>`<div class="row" style="${x.status!=='รอ'?'opacity:.5':''}">
+    <div class="main"><strong>${esc(x.msg)}</strong><small>${x.whenTh}${x.repeat?' · 🔁 ทุก'+esc(x.repeat):''}${x.status==='ส่งแล้ว'?' · ✓ ส่งแล้ว':''}</small></div>
+    <div style="display:flex;gap:4px"><button class="del-btn" onclick="editRem('${x.id}')">✎</button><button class="del-btn" onclick="delRem('${x.id}',this)">✕</button></div></div>`).join('')
+    : '<div class="empty"><div class="ic">⏰</div>ยังไม่มีการเตือน</div>';
+}
+async function addRem(b){
+  const t=$('remText').value.trim(); if(!t) return;
+  b.disabled=true;
+  try{ const r=await apiPost('remAdd',{text:t}); if(r.ok){ $('remText').value=''; toast(r.msg); loadAlert(); } else alert('🤔 '+r.msg); }
+  catch(e){ alert(e.message); } finally{ b.disabled=false; }
+}
+function editRem(id){
+  const x = AL.rem.find(r=>r.id===id) || {id:'',msg:'',when:'',repeat:''};
+  openSheet(x.id?'แก้ไขการเตือน':'เพิ่มการเตือน', `
+    <label class="fl">ข้อความ<input class="input" id="rMsg" value="${escA(x.msg)}"></label>
+    <div class="grid2">
+      <label class="fl">วัน-เวลา<input class="input" type="datetime-local" id="rWhen" value="${x.when}"></label>
+      <label class="fl">ทำซ้ำ<select class="input" id="rRep">${[['','ไม่ทำซ้ำ'],['วัน','ทุกวัน'],['สัปดาห์','ทุกสัปดาห์'],['เดือน','ทุกเดือน']].map(([v,t])=>`<option value="${v}" ${v===x.repeat?'selected':''}>${t}</option>`).join('')}</select></label>
+    </div>
+    ${btns(`<button class="btn accent" onclick="saveRem('${x.id}',this)">บันทึก</button>`)}`);
+}
+async function saveRem(id,b){
+  b.disabled=true;
+  try{ const r=await apiPost('remSave',{id,msg:$('rMsg').value,when:$('rWhen').value,repeat:$('rRep').value}); closeSheet(); toast(r.msg); loadAlert(); }
+  catch(e){ alert(e.message); b.disabled=false; }
+}
+async function delRem(id,b){ if(!confirm('ลบการเตือนนี้?'))return; b.disabled=true; try{ await apiPost('remDel',{id}); loadAlert(); }catch(e){ alert(e.message); b.disabled=false; } }
+
+function renderSettings(){
+  const s=AL.settings;
+  $('setBox').innerHTML=`
+    <label class="chk"><input type="checkbox" id="sOn" ${s.on?'checked':''}> เปิดเตือนงวดหนี้ใกล้ครบกำหนด</label>
+    <div class="grid2">
+      <label class="fl">เวลาเตือน<input class="input" type="time" id="sTime" value="${s.time}"></label>
+      <label class="fl">เตือนล่วงหน้า (วัน)<input class="input" type="number" min="0" max="30" id="sDays" value="${s.days}"></label>
+    </div>
+    <label class="fl">ความถี่<select class="input" id="sMode">
+      <option value="ครั้งเดียว" ${s.mode!=='ทุกวัน'?'selected':''}>เตือนครั้งเดียวต่องวด (ประหยัดโควต้า)</option>
+      <option value="ทุกวัน" ${s.mode==='ทุกวัน'?'selected':''}>เตือนทุกวันจนกว่าจะจ่าย</option></select></label>
+    <label class="chk"><input type="checkbox" id="sSound" ${s.sound?'checked':''}> เตือนหนี้แบบมีเสียง</label>
+    <label class="fl">เวลาเริ่มต้นของเตือนความจำ (กรณีไม่ระบุเวลา)<input class="input" type="time" id="sRemTime" value="${s.remTime}"></label>
+    <div class="btn-row" style="justify-content:flex-end;margin-top:12px"><button class="btn accent sm" onclick="saveSettings(this)">บันทึกการตั้งค่า</button></div>`;
+}
+async function saveSettings(b){
+  b.disabled=true;
+  try{ const r=await apiPost('settingsSet',{cfg:{on:$('sOn').checked,time:$('sTime').value,days:Number($('sDays').value),mode:$('sMode').value,sound:$('sSound').checked,remTime:$('sRemTime').value}}); toast(r.msg); }
+  catch(e){ alert(e.message); } finally{ b.disabled=false; }
+}
+
+function renderDebts(){
+  const all=$('debtAll').checked, lim=new Date(); lim.setDate(lim.getDate()+45); const limS=isoLocal(lim);
+  const L=AL.debts.filter(r=>all || (!r.paid && r.due && r.due<=limS));
+  $('debtEdit').innerHTML = L.length ? L.map(r=>`<div class="row" style="${r.paid?'opacity:.5':''}">
+    <div class="main"><strong>${esc(r.name)}</strong><small>${esc(r.cred)} · งวด ${esc(r.n)} · ครบ ${thDate(r.due)}${r.paid?' · ✓ จ่ายแล้ว':''}</small></div>
+    <div style="display:flex;gap:4px;align-items:center"><span class="amt">${f(r.amt)}</span><button class="del-btn" onclick="editDebt(${r.row})">✎</button></div></div>`).join('')
+    : '<div class="empty">ไม่มีงวดค้างใน 45 วันข้างหน้า</div>';
+}
+function editDebt(row){
+  const x = AL.debts.find(r=>r.row===row) || {row:0,id:'',cred:'',name:'',n:'',due:isoLocal(new Date()),amt:'',paid:false};
+  openSheet(row?'แก้ไขงวด':'เพิ่มงวดใหม่', `
+    <div class="grid2">
+      <label class="fl">เจ้าหนี้<input class="input" id="dCred" value="${escA(x.cred)}"></label>
+      <label class="fl">งวดที่<input class="input" id="dN" value="${escA(x.n)}"></label>
+    </div>
+    <label class="fl">รายการ<input class="input" id="dName" value="${escA(x.name)}"></label>
+    <div class="grid2">
+      <label class="fl">วันครบกำหนด<input class="input" type="date" id="dDue" value="${x.due}"></label>
+      <label class="fl">ยอดงวดนี้<input class="input" type="number" step="0.01" inputmode="decimal" id="dAmt" value="${x.amt}"></label>
+    </div>
+    ${row?'':'<label class="fl">รหัส (เว้นว่าง = สร้างให้)<input class="input" id="dId"></label>'}
+    <div class="btn-row" style="justify-content:space-between;margin-top:16px">
+      ${row?`<button class="btn ghost sm" onclick="delDebt(${row},this)">ลบ</button>`:'<span></span>'}
+      <div class="btn-row">${row&&!x.paid?`<button class="btn sage sm" onclick="paidDebt(${row},this)">✓ จ่ายแล้ว</button>`:''}
+      <button class="btn accent" onclick="saveDebt(${row},this)">บันทึก</button></div>
+    </div>`);
+}
+async function saveDebt(row,b){
+  const x = AL.debts.find(r=>r.row===row);
+  b.disabled=true;
+  try{
+    const r=await apiPost('debtSave',{row, id: x ? x.id : ($('dId')?.value.trim()||''), cred:$('dCred').value.trim(), name:$('dName').value.trim(), n:$('dN').value.trim(), due:$('dDue').value, amt:$('dAmt').value});
+    closeSheet(); toast(r.msg); loadAlert(); load(state.curYm);
+  }catch(e){ alert(e.message); b.disabled=false; }
+}
+async function delDebt(row,b){
+  const x = AL.debts.find(r=>r.row===row); if(!x || !confirm('ลบงวดนี้ออกจากตารางหนี้?')) return;
+  b.disabled=true;
+  try{ await apiPost('debtDel',{row,id:x.id}); closeSheet(); loadAlert(); load(state.curYm); }catch(e){ alert(e.message); b.disabled=false; }
+}
+async function paidDebt(row,b){
+  b.disabled=true;
+  try{ const r=await apiPost('payDebt',{row}); closeSheet(); toast(r.msg); loadAlert(); load(state.curYm); }catch(e){ alert(e.message); b.disabled=false; }
+}
+
+function renderLearned(){
+  $('learnList').innerHTML = AL.learned.length ? AL.learned.map((x,i)=>`<div class="row"><div class="main"><strong>${esc(x.word)}</strong><small>→ ${esc(x.cat)}${x.sub?' › '+esc(x.sub):''}</small></div><button class="del-btn" onclick="delLearn(${i},this)">✕</button></div>`).join('')
+    : '<div class="empty">ยังไม่มีคำที่สอน · แก้หมวดรายการแล้วติ๊ก "จำคำนี้" ระบบจะจำให้เอง</div>';
+}
+function addLearn(){
+  ensureMeta().catch(()=>{});
+  openSheet('สอนคำใหม่', `
+    <label class="fl">คำ / ชื่อร้าน / ชื่อของ<input class="input" id="lWord" placeholder="เช่น แกงถุง"></label>
+    <div class="grid2"><label class="fl">หมวด<input class="input" id="lCat" list="dlCat"></label><label class="fl">หมวดย่อย (ถ้ามี)<input class="input" id="lSub"></label></div>
+    ${btns('<button class="btn accent" onclick="saveLearn(this)">บันทึก</button>')}`);
+}
+async function saveLearn(b){
+  b.disabled=true;
+  try{ const r=await apiPost('learnSet',{word:$('lWord').value.trim(),cat:$('lCat').value.trim(),sub:$('lSub').value.trim()}); closeSheet(); toast(r.msg); loadAlert(); }
+  catch(e){ alert(e.message); b.disabled=false; }
+}
+async function delLearn(i,b){ const x=AL.learned[i]; if(!x||!confirm(`ลืมคำ "${x.word}"?`))return; b.disabled=true; try{ await apiPost('learnDel',{word:x.word}); loadAlert(); }catch(e){ alert(e.message); b.disabled=false; } }
+
+document.querySelector('.tabbar button[data-view="Alert"]')?.addEventListener('click', loadAlert);
+
 </script>
 </body>
 </html>
