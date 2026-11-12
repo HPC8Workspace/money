@@ -1186,6 +1186,7 @@ function renderAccounts(){
         ${a.availSet ? `<div class="ac-bal">${f(a.expected)} <span style="font-size:12.5px;opacity:.8">บ. วงเงินคงเหลือ</span></div>
           ${pct!==null?`<div class="ac-meter"><i style="width:${pct}%"></i></div>`:''}
           <div class="ac-sub"><span>${a.limit?'ใช้ '+fI(a.limit-a.expected)+' / '+fI(a.limit):'ยังไม่ใส่วงเงินอนุมัติ'}</span><span>อัปเดต ${esc(a.availAtStr.slice(0,8))}${a.availN?' · '+a.availN+' รายการ':''}</span></div>`
+          + (a.shareWith&&a.shareWith.length?`<div class="ac-sub" style="margin-top:3px"><span>🔗 วงเงินร่วมกับ ${esc(a.shareWith.join(', '))}</span></div>`:'')
           : `<div class="ac-bal" style="font-size:16px;margin:10px 0 6px">ยังไม่ได้ตั้งวงเงินคงเหลือ</div><div class="ac-sub"><span>กด "เช็กวงเงิน" แล้วกรอกจากแอปธนาคาร</span></div>`}
         <div class="ac-sub" style="margin-top:5px"><span>${bn?esc(bn.label)+' '+(bn.stmt===null?'~':'')+f(bn.total)+(bn.paid?' ✓':''):'ยังไม่ตั้งวันตัดรอบ/ครบกำหนด'}</span><span>${bn?'ครบ '+dm(bn.dueS):''}</span></div></div>
         <div class="ac-btns"><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();${bn?`openBill('${id}','${bn.dueS}')`:`openAccDetail('${id}','cur')`}">🧾 บิล</button><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();openReconcile('${id}')">🔍 เช็กวงเงิน</button></div></div>`;
@@ -1198,7 +1199,7 @@ function renderAccounts(){
       <div class="ac-btns"><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();openAccDetail('${id}','ym')">📋 รายการ</button><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();openReconcile('${id}')">🔍 เช็กยอด</button></div></div>`;
   }).join('');
   const cash = ACCS.filter(a=>a.type!=='ธนวัฏ'&&a.type!=='บัตรเครดิต').reduce((s,a)=>s+a.expected,0);
-  const CC = ACCS.filter(a=>a.type==='บัตรเครดิต'), av = CC.filter(a=>a.availSet).reduce((s,a)=>s+a.expected,0);
+  const CC = ACCS.filter(a=>a.type==='บัตรเครดิต'), seen = {}, av = CC.filter(a=>a.availSet && !(a.share && seen[a.share]) && (seen[a.share||a.id]=1)).reduce((s,a)=>s+a.expected,0);   // วงเงินร่วมนับครั้งเดียว
   $('accHint').innerHTML = `เงินสด/เงินฝากพร้อมใช้รวม <b>${f(cash)}</b> บาท` + (CC.some(a=>a.availSet) ? ` · วงเงินบัตรคงเหลือรวม <b>${f(av)}</b> บาท` : '');
 }
 async function openAccDetail(id, mode, ym){
@@ -1250,7 +1251,8 @@ function editAcc(id){
         <label class="fl">วงเงินอนุมัติ (บาท)<input class="input" id="acLimit" type="number" inputmode="numeric" value="${a.limit||''}"></label>
         <label class="fl">วงเงินคงเหลือตอนนี้ (ดูในแอปธนาคาร)<input class="input" id="acAvail" type="number" step="0.01" inputmode="decimal" placeholder="ใช้ได้อีกกี่บาท" value="${a.availSet?a.expected:''}"></label>
       </div>
-      <div class="hint">กรอกวงเงินคงเหลือเมื่อเช็กกับแอปธนาคาร → ระบบจะหักยอดรูดที่จดหลังจากนี้ และบวกยอดจ่ายบัตรให้เอง (รายการที่ลงวันที่ก่อนหน้านี้ถือว่าอยู่ในยอดของธนาคารแล้ว)</div>
+      <label class="fl">ใช้วงเงินร่วมกับบัตร (วงเงินก้อนเดียวกัน)<select class="input" id="acShare"><option value="">— ไม่ร่วม (วงเงินแยก) —</option>${ACCS.filter(x=>x.type==='บัตรเครดิต'&&x.id!==a.id).map(x=>`<option value="${escA(x.id)}" ${(a.shareWith||[]).includes(x.name)?'selected':''}>${esc(x.name)}${x.shareWith&&x.shareWith.length&&!(a.shareWith||[]).includes(x.name)?' (+ '+esc(x.shareWith.join(', '))+')':''}</option>`).join('')}</select></label>
+      <div class="hint">กรอกวงเงินคงเหลือเมื่อเช็กกับแอปธนาคาร → ระบบจะหักยอดรูดที่จดหลังจากนี้ และบวกยอดจ่ายบัตรให้เอง (รายการที่ลงวันที่ก่อนหน้านี้ถือว่าอยู่ในยอดของธนาคารแล้ว)<br>บัตรวงเงินร่วม: อัปเดตจากใบไหนก็ได้ ทุกใบในกลุ่มจะเป็นยอดเดียวกัน และยอดรูดของทุกใบหักจากวงเงินก้อนนี้</div>
     </div>
     <label class="fl">ช่องทางจ่ายที่ผูก (ชื่อที่ลงในรายการ · คั่นด้วย ,)<input class="input" id="acPays" placeholder="เว้นว่าง = ใช้ชื่อบัญชี" value="${escA(a.pays)}"></label>
     <label class="fl">คำเรียกสั้นตอนพิมพ์ใน LINE (คั่นด้วย ,)<input class="input" id="acAlias" placeholder="เช่น กสิกร, kbank → พิมพ์ &quot;ข้าว 50 กสิกร&quot;" value="${escA(a.alias)}"></label>
@@ -1282,7 +1284,7 @@ async function saveAcc(id, b){
       keepBalance: !!old && $('acType').value!=='บัตรเครดิต' && $('acOdDebt').value==(old.odDebt||'') && Number(base)===Number(old.expected),   // ไม่ได้แก้ยอด → ไม่รีเซ็ตจุดเช็กยอด
       pays: $('acPays').value.trim(), color: $('acColor').value, note: $('acNote').value.trim(),
       limit: $('acLimit').value, cutDay: $('acCut').value, dueDay: $('acDue').value, last4: $('acLast4').value.trim(), bank: $('acBank').value.trim(), alias: $('acAlias').value.trim(),
-      avail: av, availSet
+      avail: av, availSet, shareWith: $('acType').value==='บัตรเครดิต' ? $('acShare').value : ''
     });
     closeSheet(); toast(r.msg); load(state.curYm, true);
   }catch(e){ alert(e.message); b.disabled = false; }
