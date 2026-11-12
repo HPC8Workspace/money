@@ -295,6 +295,34 @@
   .fl select.input{appearance:auto}
   .hint{font-size:12px;color:var(--mute);margin-top:6px;line-height:1.5}
   .cols{display:block}
+  /* ภาระหนี้รายเดือน (พับ/เปิด) */
+  .card h2{flex-wrap:wrap}
+  .card h2>.btn-row,.card h2>button{margin-left:auto}
+  .bhead-big{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .bhead-big b{font-family:var(--serif);font-size:32px;font-weight:500;letter-spacing:-.02em;line-height:1.1}
+  .bnext{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .bnext div{background:var(--soft);border-radius:var(--r-sm);padding:9px 11px;cursor:pointer}
+  .bnext small{display:block;font-size:11px;color:var(--mute)} .bnext b{font-family:var(--serif);font-size:16px;font-weight:500}
+  .bcy{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin:10px 0;box-shadow:var(--shadow);overflow:hidden}
+  .bcy.focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(198,120,86,.16),var(--shadow)}
+  .bcy.past .bh{opacity:.72}
+  .bh{display:flex;width:100%;align-items:center;gap:10px;padding:14px 16px 10px;text-align:left}
+  .bh .bl{font-family:var(--serif);font-size:16px;font-weight:500;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .bh small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+  .bh .br{margin-left:auto;text-align:right;white-space:nowrap}
+  .bh .br b{font-family:var(--serif);font-size:21px;font-weight:500;display:block;line-height:1.2}
+  .bh .chev{color:var(--mute);transition:transform .2s;font-size:20px;width:14px}
+  .bcy.open .chev{transform:rotate(90deg)}
+  .bcy .pbar{height:4px;background:var(--line);margin:0 16px 12px;border-radius:3px;overflow:hidden}
+  .bcy .pbar i{display:block;height:100%;background:var(--sage)}
+  .bd{display:none;padding:2px 16px 14px;border-top:1px dashed var(--line)}
+  .bcy.open .bd{display:block;animation:fadeIn .2s}
+  .bsec{font-size:12px;font-weight:600;color:var(--ink-2);margin:14px 0 0;letter-spacing:.02em}
+  .bmix{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .cc-row .ico{background:linear-gradient(135deg,var(--accent),#7b4b94);color:#fff}
+  .bill-box{background:var(--soft);border-radius:var(--r);padding:14px 16px;margin:0 0 12px}
+  .bill-box .row{padding:7px 0}
+  .linkrow select{width:auto;max-width:48%;padding:7px 8px;font-size:13px}
   @media (min-width:900px){
     body{padding-left:92px;padding-bottom:24px}
     main{max-width:1120px;padding:0 24px}
@@ -356,7 +384,7 @@
         <div class="kpi warm tap" onclick="go('Month')"><div class="label" id="kBudgetLbl">งบเหลือเดือนนี้</div><div class="v" id="kBudget">–</div><div class="sub" id="kDaily">ใช้ได้วันละ –</div></div>
         <div class="kpi tap" onclick="openAdd('รายจ่าย')"><div class="label">ใช้ไปวันนี้</div><div class="v" id="kToday">–</div><div class="sub" id="kTodayN">แตะเพื่อจดเพิ่ม</div></div>
         <div class="kpi tap" onclick="go('Month')"><div class="label">รายรับที่จด</div><div class="v sm" id="kIncome">–</div><div class="sub" id="kIncomeSub">เดือนนี้</div></div>
-        <div class="kpi tap" onclick="go('Alert')"><div class="label">หนี้ระยะสั้นรวม</div><div class="v sm" id="kDebt">–</div><div class="sub">บัตร + ผ่อน + ธนวัฏ</div></div>
+        <div class="kpi tap" onclick="go('Month');setMonthMode('burden')"><div class="label">หนี้ระยะสั้นรวม</div><div class="v sm" id="kDebt">–</div><div class="sub">บัตร + ผ่อน + ธนวัฏ</div></div>
       </div>
       <div class="card">
         <h2>ถามหรือสั่งผู้ช่วย <span class="eyebrow">เหมือนพิมพ์ใน LINE</span></h2>
@@ -380,7 +408,7 @@
       </div>
     </div>
     <div>
-      <div class="card"><h2>ต้องจ่ายเร็ว ๆ นี้ <span class="eyebrow">หนี้ · บัตร · ประกัน</span></h2><div id="soonList"></div></div>
+      <div class="card"><h2>ต้องจ่ายเร็ว ๆ นี้ <button class="btn ghost sm" onclick="go('Month');setMonthMode('burden')">ภาระรายเดือน ›</button></h2><div id="soonList"></div></div>
       <div class="card"><h2>วันนี้ <span class="eyebrow" id="todayDate">–</span></h2><div id="todayList"></div></div>
       <div class="card">
         <h2>แผนปลดหนี้ <span class="eyebrow">payoff</span></h2>
@@ -405,8 +433,8 @@
   <!-- ============ กระเป๋า: บัญชี · บัตร · ประกัน ============ -->
   <section id="viewWallet" class="view">
     <div class="card">
-      <h2>บัญชี &amp; บัตร <span class="btn-row"><button class="btn ghost sm" onclick="openAdd('โอนย้าย')">🔁 โอนย้าย</button><button class="btn sm" onclick="editAcc('')">+ เพิ่ม</button></span></h2>
-      <div class="meta" style="margin-top:-6px;margin-bottom:8px">แตะการ์ดเพื่อดูรายการใช้จ่ายของบัญชี/บัตรนั้น · "เช็กยอด" ช่วยหาว่าลืมจดอะไรไหม</div>
+      <h2>บัญชี &amp; บัตร <span class="btn-row"><button class="btn ghost sm" onclick="openLinks()">🔗 ผูกงวด</button><button class="btn ghost sm" onclick="openAdd('โอนย้าย')">🔁 โอนย้าย</button><button class="btn sm" onclick="editAcc('')">+ เพิ่ม</button></span></h2>
+      <div class="meta" style="margin-top:-6px;margin-bottom:8px">แตะการ์ดเพื่อดูรายการ · บัตร: กด "เช็กวงเงิน" แล้วกรอกวงเงินคงเหลือจากแอปธนาคาร — ถ้าตัวเลขไม่ตรง แปลว่ามีรายการที่ลืมจดหรือถูกตัดยอด</div>
       <div class="acc-grid" id="accGrid"></div>
       <div class="hint" id="accHint"></div>
     </div>
@@ -420,6 +448,16 @@
 
   <!-- ============ สรุปเดือน ============ -->
   <section id="viewMonth" class="view">
+    <div class="seg" id="monthSeg" style="margin-top:10px">
+      <button data-m="burden">🗓 ภาระหนี้รายเดือน</button>
+      <button data-m="spend">📊 รายรับ–รายจ่าย</button>
+    </div>
+    <div id="burdenView">
+      <div class="card" id="burdenHead"></div>
+      <div id="burdenList"></div>
+      <div class="hint" style="padding:0 4px 10px">แต่ละรอบ = งวดที่ครบกำหนดตั้งแต่วันเริ่มรอบของเดือนนั้น ถึงก่อนวันเริ่มรอบเดือนถัดไป (ช่วงหลักคือวันที่เลือกไว้ เช่น 28–2) · งวดผ่อนที่ผูกกับบัตรจะรวมอยู่ในบิลบัตร ไม่นับซ้ำ</div>
+    </div>
+    <div id="spendView">
     <div class="mnav">
       <button onclick="shiftMonth(1)" aria-label="เดือนก่อนหน้า">‹</button>
       <select id="ymSel" class="input"></select>
@@ -451,6 +489,7 @@
           <div id="txAll"></div>
         </div>
       </div>
+    </div>
     </div>
     <div class="sheet-link"><a id="sheetLink" target="_blank">↗ เปิด Google Sheet</a> &nbsp;·&nbsp; <a href="javascript:resetSetup()">⚙️ ตั้งค่าการเชื่อมต่อใหม่</a></div>
   </section>
@@ -649,6 +688,8 @@ if(!CFG.url || !CFG.key){
   $('appView').style.display='block';
   document.querySelectorAll('.tabbar button[data-view]').forEach(b=>{ b.onclick = ()=>go(b.dataset.view); });
   $('fabAdd').onclick = ()=>openAdd('รายจ่าย');
+  $('monthSeg').onclick = e=>{ const b=e.target.closest('button'); if(b) setMonthMode(b.dataset.m); };
+  setMonthMode(LS.get('mmode') || 'burden');
   document.querySelectorAll('#viewHome .chip[data-cmd]').forEach(c=>{ c.onclick = ()=>ask(c.dataset.cmd); });
   $('askForm').onsubmit = e=>{ e.preventDefault(); const v=$('askText').value.trim(); if(v){ ask(v); $('askText').value=''; } };
   $('askQuick').onclick = e=>{ const c=e.target.closest('[data-cmd]'); if(c) ask(c.dataset.cmd); };
@@ -670,7 +711,7 @@ function render(d){
   $('dlCat').innerHTML = META.cats.map(c=>`<option value="${escA(c)}">`).join('');
   $('dlPay').innerHTML = META.pays.map(c=>`<option value="${escA(c)}">`).join('');
   $('appSub').textContent = 'เดือน '+d.ymTh+' · วันที่ '+d.today.split('-').reverse().slice(0,2).join('/');
-  renderHome(d); renderAccounts(); renderIns(); renderMonth(d);
+  renderHome(d); renderAccounts(); renderIns(); renderMonth(d); renderBurden(d);
 }
 
 /* ================= หน้าแรก ================= */
@@ -702,7 +743,7 @@ function renderHome(d){
   $('soonList').innerHTML = soon.length
     ? soon.slice(0,12).map((r,i)=>`<div class="row"><div class="lead"><div class="ico">${KI[r.kind]||'🧾'}</div><div class="main"><strong>${esc(r.name)}</strong><small>${thLong(r.date)} · ${esc(r.sub)}</small></div></div>
         <div style="text-align:right"><div class="amt">${f(r.amt)}</div>${dueBadge(r.days)}</div>
-        ${r.kind==='debt' ? `<button class="pay-btn" title="ติ๊กจ่ายแล้ว" onclick="payRow(${r.row},this)">✓</button>` : r.kind==='ins' ? `<button class="pay-btn" title="จ่ายเบี้ยแล้ว" onclick="openInsPay('${escA(r.id)}')">✓</button>` : `<button class="pay-btn" style="background:var(--surface-2);color:var(--ink-2)" title="ดูรายการ" onclick="openAccDetail('${escA(r.id)}','prev')">›</button>`}</div>`).join('')
+        ${r.kind==='debt' ? `<button class="pay-btn" title="ติ๊กจ่ายแล้ว" onclick="payRow(${r.row},this)">✓</button>` : r.kind==='ins' ? `<button class="pay-btn" title="จ่ายเบี้ยแล้ว" onclick="openInsPay('${escA(r.id)}')">✓</button>` : `<button class="pay-btn" style="background:var(--surface-2);color:var(--ink-2)" title="ดูบิล" onclick="openBill('${escA(r.id)}','${r.date}')">›</button>`}</div>`).join('')
       + `<div class="row" style="padding-top:12px"><div class="main"><strong>รวม ${Math.min(12,soon.length)} รายการ</strong></div><div class="amt neg">${f(soon.slice(0,12).reduce((a,r)=>a+r.amt,0))}</div></div>`
     : '<div class="empty"><div class="ic">🎉</div>ไม่มีรายการต้องจ่ายใน 30 วันนี้</div>';
 
@@ -726,7 +767,7 @@ function ask(text, msgId, quickId){
   m.classList.add('on'); m.innerHTML = '<b>'+esc(text)+'</b>\n<span class="loader"></span>'; q.innerHTML='';
   return apiPost('cmd', {text}).then(r=>{
     showReply(r, m, q);
-    if(/^(📝|💰|✏️|💳 ลง|🗑️|🔁 ย้าย|✅|↩️|🛡️ จ่าย|💡 ตั้ง|💡 เพิ่ม|💚|🏦 อัปเดต|🔍)/.test(r.reply||'')) load(state.curYm, true);
+    if(/^(📝|💰|✏️|💳 ลง|🗑️|🔁 ย้าย|✅|↩️|🛡️ จ่าย|💡 ตั้ง|💡 เพิ่ม|💚|🏦 อัปเดต|🔍|💸|🔗)/.test(r.reply||'')) load(state.curYm, true);
   }).catch(e=>{ m.textContent = 'ผิดพลาด: '+e.message; });
 }
 function runCmd(cmd){ go('Home'); ask(cmd); }
@@ -1068,7 +1109,7 @@ function renderDebts(){
   const all=$('debtAll').checked, lim=new Date(); lim.setDate(lim.getDate()+45); const limS=isoLocal(lim);
   const L=AL.debts.filter(r=>all || (!r.paid && r.due && r.due<=limS));
   $('debtEdit').innerHTML = L.length ? L.map(r=>`<div class="row" style="${r.paid?'opacity:.5':''}">
-    <div class="main"><strong>${esc(r.name)}</strong><small>${esc(r.cred)} · งวด ${esc(r.n)} · ครบ ${thDate(r.due)}${r.paid?' · ✓ จ่ายแล้ว':''}</small></div>
+    <div class="main"><strong>${esc(r.name)}</strong><small>${esc(r.cred)}${r.card?' · 💳 '+esc(cardName(r.card)):''} · งวด ${esc(r.n)} · ครบ ${thDate(r.due)}${r.paid?' · ✓ จ่ายแล้ว':''}</small></div>
     <div style="display:flex;gap:4px;align-items:center"><span class="amt">${f(r.amt)}</span><button class="del-btn" onclick="editDebt(${r.row})">✎</button></div></div>`).join('')
     : '<div class="empty">ไม่มีงวดค้างใน 45 วันข้างหน้า</div>';
 }
@@ -1080,6 +1121,7 @@ function editDebt(row){
       <label class="fl">งวดที่<input class="input" id="dN" value="${escA(x.n)}"></label>
     </div>
     <label class="fl">รายการ<input class="input" id="dName" value="${escA(x.name)}"></label>
+    ${linkSel(x)}
     <div class="grid2">
       <label class="fl">วันครบกำหนด<input class="input" type="date" id="dDue" value="${x.due}"></label>
       <label class="fl">ยอดงวดนี้<input class="input" type="number" step="0.01" inputmode="decimal" id="dAmt" value="${x.amt}"></label>
@@ -1095,7 +1137,7 @@ async function saveDebt(row,b){
   const x = AL.debts.find(r=>r.row===row);
   b.disabled=true;
   try{
-    const r=await apiPost('debtSave',{row, id: x ? x.id : ($('dId')?.value.trim()||''), cred:$('dCred').value.trim(), name:$('dName').value.trim(), n:$('dN').value.trim(), due:$('dDue').value, amt:$('dAmt').value});
+    const r=await apiPost('debtSave',{row, id: x ? x.id : ($('dId')?.value.trim()||''), cred:$('dCred').value.trim(), name:$('dName').value.trim(), n:$('dN').value.trim(), due:$('dDue').value, amt:$('dAmt').value, link: ($('dLink') && $('dLink').value!=='__orphan') ? $('dLink').value : undefined});
     closeSheet(); toast(r.msg); loadAlert(); load(state.curYm);
   }catch(e){ alert(e.message); b.disabled=false; }
 }
@@ -1136,15 +1178,17 @@ function renderAccounts(){
   $('accGrid').innerHTML = ACCS.map(a => {
     const id = escA(a.id), col = esc(a.color||'#1a3a44');
     if(a.type==='บัตรเครดิต'){
-      const c = a.cycle || {}, pct = a.limit ? Math.min(100, Math.round(c.cur/a.limit*100)) : null;
+      const bp = a.billPrev, bc = a.billCur, bn = bp && !bp.paid && bp.total>0 && bp.days>=-20 ? bp : bc;
+      const pct = a.availSet && a.limit ? Math.min(100, Math.max(0, Math.round((a.limit-a.expected)/a.limit*100))) : null;
       return `<div class="acc-card cc tap" style="background:linear-gradient(135deg,${col},#2a2a33)" onclick="openAccDetail('${id}','cur')">
         <div><div class="ac-top"><span><span class="ac-type">บัตรเครดิต${a.bank?' · '+esc(a.bank):''}</span><span class="ac-name">${esc(a.name)}${a.last4?' ••'+esc(a.last4):''}</span></span>
           <button class="ac-btn" style="padding:2px 7px" onclick="event.stopPropagation();editAcc('${id}')">✎</button></div>
-        <div class="ac-bal">${f(c.cur)} <span style="font-size:13px;opacity:.8">บ. รอบนี้</span></div>
-        ${pct!==null?`<div class="ac-meter"><i style="width:${pct}%"></i></div>`:''}
-        <div class="ac-sub"><span>${pct!==null?'ใช้ '+pct+'% ของ '+fI(a.limit):'รอบ '+dm(c.from)+'–'+dm(c.to)}</span><span>${c.due?'จ่าย '+dm(c.due):'ยังไม่ตั้งวันครบกำหนด'}</span></div>
-        ${c.prev>0?`<div class="ac-sub" style="margin-top:3px"><span>รอบก่อน ${f(c.prev)}</span><span>${c.prevDue?'ครบ '+dm(c.prevDue):''}</span></div>`:''}</div>
-        <div class="ac-btns"><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();openAccDetail('${id}','cur')">📋 รายการรูดบัตร</button></div></div>`;
+        ${a.availSet ? `<div class="ac-bal">${f(a.expected)} <span style="font-size:12.5px;opacity:.8">บ. วงเงินคงเหลือ</span></div>
+          ${pct!==null?`<div class="ac-meter"><i style="width:${pct}%"></i></div>`:''}
+          <div class="ac-sub"><span>${a.limit?'ใช้ '+fI(a.limit-a.expected)+' / '+fI(a.limit):'ยังไม่ใส่วงเงินอนุมัติ'}</span><span>อัปเดต ${esc(a.availAtStr.slice(0,8))}${a.availN?' · '+a.availN+' รายการ':''}</span></div>`
+          : `<div class="ac-bal" style="font-size:16px;margin:10px 0 6px">ยังไม่ได้ตั้งวงเงินคงเหลือ</div><div class="ac-sub"><span>กด "เช็กวงเงิน" แล้วกรอกจากแอปธนาคาร</span></div>`}
+        <div class="ac-sub" style="margin-top:5px"><span>${bn?esc(bn.label)+' '+(bn.stmt===null?'~':'')+f(bn.total)+(bn.paid?' ✓':''):'ยังไม่ตั้งวันตัดรอบ/ครบกำหนด'}</span><span>${bn?'ครบ '+dm(bn.dueS):''}</span></div></div>
+        <div class="ac-btns"><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();${bn?`openBill('${id}','${bn.dueS}')`:`openAccDetail('${id}','cur')`}">🧾 บิล</button><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();openReconcile('${id}')">🔍 เช็กวงเงิน</button></div></div>`;
     }
     return `<div class="acc-card tap" style="background:${col}" onclick="openAccDetail('${id}','ym')">
       <div><div class="ac-top"><span><span class="ac-type">${esc(a.type)}${a.bank?' · '+esc(a.bank):''}</span><span class="ac-name">${esc(a.name)}${a.last4?' ••'+esc(a.last4):''}</span></span>
@@ -1154,8 +1198,8 @@ function renderAccounts(){
       <div class="ac-btns"><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();openAccDetail('${id}','ym')">📋 รายการ</button><button class="ac-btn" style="flex:1" onclick="event.stopPropagation();openReconcile('${id}')">🔍 เช็กยอด</button></div></div>`;
   }).join('');
   const cash = ACCS.filter(a=>a.type!=='ธนวัฏ'&&a.type!=='บัตรเครดิต').reduce((s,a)=>s+a.expected,0);
-  const cc = ACCS.filter(a=>a.type==='บัตรเครดิต').reduce((s,a)=>s+((a.cycle||{}).cur||0),0);
-  $('accHint').innerHTML = `เงินสด/เงินฝากพร้อมใช้รวม <b>${f(cash)}</b> บาท · ยอดรูดบัตรรอบนี้รวม <b>${f(cc)}</b> บาท (คิดจากรายการที่จด)`;
+  const CC = ACCS.filter(a=>a.type==='บัตรเครดิต'), av = CC.filter(a=>a.availSet).reduce((s,a)=>s+a.expected,0);
+  $('accHint').innerHTML = `เงินสด/เงินฝากพร้อมใช้รวม <b>${f(cash)}</b> บาท` + (CC.some(a=>a.availSet) ? ` · วงเงินบัตรคงเหลือรวม <b>${f(av)}</b> บาท` : '');
 }
 async function openAccDetail(id, mode, ym){
   const a = ACCS.find(x=>x.id===id); if(!a) return;
@@ -1163,7 +1207,8 @@ async function openAccDetail(id, mode, ym){
   const prevYm = (()=>{ const [y,m]=curYm.split('-').map(Number); const d=new Date(y,m-2,1); return d.getFullYear()+'-'+pad2(d.getMonth()+1); })();
   const tabs = isCard ? [['cur','','รอบนี้'],['prev','','รอบก่อน'],['ym',curYm,'เดือนนี้']] : [['ym',curYm,'เดือนนี้'],['ym',prevYm,'เดือนก่อน']];
   if(mode==='ym' && !ym) ym = curYm;
-  openSheet((isCard?'💳 ':'🏦 ')+a.name, `<div class="seg">${tabs.map(([m,y,l])=>`<button class="${m===mode&&(m!=='ym'||y===ym)?'on':''}" onclick="openAccDetail('${escA(id)}','${m}','${y}')">${l}</button>`).join('')}</div><div id="adBody"><div class="empty"><span class="loader"></span></div></div>`);
+  const billBtns = isCard ? `<div class="btn-row" style="margin:0 0 10px">${[a.billPrev,a.billCur].filter(Boolean).map(b=>`<button class="btn ghost sm" onclick="openBill('${escA(id)}','${b.dueS}')">🧾 ${esc(b.label)} ${b.stmt===null?'~':''}${f(b.total)}${b.paid?' ✓':''}</button>`).join('')}<button class="btn ghost sm" onclick="openLinks()">🔗 ผูกงวดผ่อน (${a.linkedN||0})</button></div>` : '';
+  openSheet((isCard?'💳 ':'🏦 ')+a.name, billBtns + `<div class="seg">${tabs.map(([m,y,l])=>`<button class="${m===mode&&(m!=='ym'||y===ym)?'on':''}" onclick="openAccDetail('${escA(id)}','${m}','${y}')">${l}</button>`).join('')}</div><div id="adBody"><div class="empty"><span class="loader"></span></div></div>`);
   try{
     const d = await apiGet('accDetail', {id, mode, ym: ym||''});
     const max = Math.max(1, ...d.byCat.map(c=>c.amt));
@@ -1201,7 +1246,11 @@ function editAcc(id){
         <label class="fl">วันตัดรอบบิล (วันที่)<input class="input" id="acCut" type="number" min="1" max="31" inputmode="numeric" placeholder="เช่น 12" value="${a.cutDay||''}"></label>
         <label class="fl">วันครบกำหนดจ่าย (วันที่)<input class="input" id="acDue" type="number" min="1" max="31" inputmode="numeric" placeholder="เช่น 1" value="${a.dueDay||''}"></label>
       </div>
-      <label class="fl">วงเงินบัตร (บาท)<input class="input" id="acLimit" type="number" inputmode="numeric" value="${a.limit||''}"></label>
+      <div class="grid2">
+        <label class="fl">วงเงินอนุมัติ (บาท)<input class="input" id="acLimit" type="number" inputmode="numeric" value="${a.limit||''}"></label>
+        <label class="fl">วงเงินคงเหลือตอนนี้ (ดูในแอปธนาคาร)<input class="input" id="acAvail" type="number" step="0.01" inputmode="decimal" placeholder="ใช้ได้อีกกี่บาท" value="${a.availSet?a.expected:''}"></label>
+      </div>
+      <div class="hint">กรอกวงเงินคงเหลือเมื่อเช็กกับแอปธนาคาร → ระบบจะหักยอดรูดที่จดหลังจากนี้ และบวกยอดจ่ายบัตรให้เอง (รายการที่ลงวันที่ก่อนหน้านี้ถือว่าอยู่ในยอดของธนาคารแล้ว)</div>
     </div>
     <label class="fl">ช่องทางจ่ายที่ผูก (ชื่อที่ลงในรายการ · คั่นด้วย ,)<input class="input" id="acPays" placeholder="เว้นว่าง = ใช้ชื่อบัญชี" value="${escA(a.pays)}"></label>
     <label class="fl">คำเรียกสั้นตอนพิมพ์ใน LINE (คั่นด้วย ,)<input class="input" id="acAlias" placeholder="เช่น กสิกร, kbank → พิมพ์ &quot;ข้าว 50 กสิกร&quot;" value="${escA(a.alias)}"></label>
@@ -1226,12 +1275,14 @@ function pickAccColor(c, el){
 async function saveAcc(id, b){
   b.disabled = true;
   try{
-    const old = ACCS.find(x=>x.id===id), base = $('acBase').value;
+    const old = ACCS.find(x=>x.id===id), base = $('acBase').value, av = $('acAvail').value;
+    const availSet = $('acType').value==='บัตรเครดิต' && av!=='' && (!old || !old.availSet || Number(av)!==Number(old.expected));
     const r = await apiPost('accSave', {
       id, name: $('acName').value.trim(), type: $('acType').value, baseAmt: base, odDebt: $('acOdDebt').value,
       keepBalance: !!old && $('acType').value!=='บัตรเครดิต' && $('acOdDebt').value==(old.odDebt||'') && Number(base)===Number(old.expected),   // ไม่ได้แก้ยอด → ไม่รีเซ็ตจุดเช็กยอด
       pays: $('acPays').value.trim(), color: $('acColor').value, note: $('acNote').value.trim(),
-      limit: $('acLimit').value, cutDay: $('acCut').value, dueDay: $('acDue').value, last4: $('acLast4').value.trim(), bank: $('acBank').value.trim(), alias: $('acAlias').value.trim()
+      limit: $('acLimit').value, cutDay: $('acCut').value, dueDay: $('acDue').value, last4: $('acLast4').value.trim(), bank: $('acBank').value.trim(), alias: $('acAlias').value.trim(),
+      avail: av, availSet
     });
     closeSheet(); toast(r.msg); load(state.curYm, true);
   }catch(e){ alert(e.message); b.disabled = false; }
@@ -1244,6 +1295,18 @@ async function delAcc(id, b){
 }
 function openReconcile(id){
   const a = ACCS.find(x=>x.id===id); if(!a) return;
+  if(a.type==='บัตรเครดิต'){
+    openSheet('🔍 เช็กวงเงิน: ' + a.name, `
+      <div class="card plain" style="background:var(--soft);margin:0 0 12px">${a.availSet
+        ? `<div>วงเงินคงเหลือตามระบบ: <b>${f(a.expected)} บาท</b></div><small style="color:var(--mute)">ตั้งไว้ ${f(a.availBase)} เมื่อ ${esc(a.availAtStr)} · รายการหลังจากนั้น ${a.availN} รายการ (${a.availChg>=0?'+':''}${f(a.availChg)})</small>`
+        : '<div>ยังไม่เคยตั้งวงเงินคงเหลือ — กรอกตัวเลขจากแอปธนาคารเพื่อเริ่มติดตาม</div>'}${a.limit?`<br><small style="color:var(--mute)">วงเงินอนุมัติ ${f(a.limit)}</small>`:''}</div>
+      <label class="fl">วงเงินคงเหลือ (ใช้ได้) ในแอปธนาคารตอนนี้ (บาท)
+        <input class="input" id="rcActual" type="number" step="0.01" inputmode="decimal" placeholder="เปิดแอปธนาคารแล้วพิมพ์ที่นี่" oninput="calcCardDiff(${a.availSet?a.expected:'null'}, this.value)"></label>
+      <div id="rcPreview" style="margin-top:10px;font-size:13.5px;font-weight:500"></div>
+      <label class="chk"><input type="checkbox" id="rcAdjust" checked> อัปเดตวงเงินในระบบให้ตรงกับแอปธนาคาร (เริ่มนับรายการใหม่จากตอนนี้)</label>
+      ${btns(`<button class="btn accent" onclick="runReconcile('${escA(a.id)}',this)">ยืนยันเช็กวงเงิน</button>`)}`);
+    return;
+  }
   openSheet('🔍 เช็กยอด: ' + a.name, `
     <div class="card plain" style="background:var(--soft);margin:0 0 12px">
       <div>ยอดตามที่จดในระบบ: <b>${f(a.expected)} บาท</b></div>
@@ -1255,6 +1318,14 @@ function openReconcile(id){
     <div id="rcPreview" style="margin-top:10px;font-size:13.5px;font-weight:500"></div>
     <label class="chk"><input type="checkbox" id="rcAdjust" checked> ปรับยอดตั้งต้นในระบบให้ตรงกับยอดจริงทันที</label>
     ${btns(`<button class="btn accent" onclick="runReconcile('${escA(a.id)}',this)">ยืนยันเช็กยอด</button>`)}`);
+}
+function calcCardDiff(expected, val){
+  const el = $('rcPreview');
+  if(val==='' || isNaN(Number(val)) || expected===null){ el.textContent = expected===null && val!=='' ? 'จะตั้งเป็นวงเงินคงเหลือเริ่มต้น' : ''; el.style.color='var(--mute)'; return; }
+  const diff = Math.round((Number(val) - expected)*100)/100;
+  if(Math.abs(diff) < 1){ el.style.color = 'var(--sage-ink)'; el.textContent = '✅ ตรงกัน! ไม่มียอดตกหล่น'; }
+  else if(diff < 0){ el.style.color = 'var(--bad)'; el.textContent = `⚠️ วงเงินจริงน้อยกว่าระบบ ${f(-diff)} บาท → อาจลืมจดรายการรูด หรือมีดอกเบี้ย/ค่าธรรมเนียม/งวดผ่อนถูกตัด`; }
+  else { el.style.color = 'var(--warn)'; el.textContent = `💡 วงเงินจริงมากกว่าระบบ +${f(diff)} บาท → อาจมีเงินคืน/ยอดจ่ายบัตรที่ยังไม่บันทึก หรือจดรายการซ้ำ`; }
 }
 function calcDiffPreview(expected, val){
   const el = $('rcPreview');
@@ -1271,17 +1342,17 @@ async function runReconcile(id, b){
   try{
     const adj = $('rcAdjust').checked, a = ACCS.find(x=>x.id===id);
     const r = await apiPost('accReconcile', {id, actual: Number(val), adjust: adj});
-    const diff = r.res.diff, payName = ((a?.pays||'').split(',')[0]||'').trim() || a?.name || '';
+    const diff = r.res.diff, payName = ((a?.pays||'').split(',')[0]||'').trim() || a?.name || '', isCard = a?.type==='บัตรเครดิต';
     openSheet('ผลเช็กยอด', `<div class="bubble on" style="margin-top:0">${esc(r.res.msg)}</div>
-      ${adj && Math.abs(diff)>=1 ? `<div class="hint">ต้องการจดส่วนต่างนี้เป็นรายการเลยไหมคะ? (เพื่อให้สรุปรายเดือนครบ)</div>
-        <div class="btn-row" style="margin-top:10px"><button class="btn sage sm" onclick="addMissing(${Math.abs(diff)},'${escA(payName)}',${diff<0},this)">+ จด${diff<0?'รายจ่าย':'รายรับ'}ที่ตกหล่น ${f(Math.abs(diff))} บ.</button></div>` : ''}
+      ${adj && Math.abs(diff)>=1 && (!isCard || diff<0) ? `<div class="hint">ต้องการจดส่วนต่างนี้เป็นรายการเลยไหมคะ? (เพื่อให้สรุปรายเดือนครบ · ไม่หักซ้ำกับยอดที่เพิ่งอัปเดต)</div>
+        <div class="btn-row" style="margin-top:10px"><button class="btn sage sm" onclick="addMissing(${Math.abs(diff)},'${escA(payName)}',${diff<0},this,'${escA(id)}',${isCard})">+ จด${diff<0?(isCard?'รายการรูด':'รายจ่าย'):'รายรับ'}ที่ตกหล่น ${f(Math.abs(diff))} บ.</button></div>` : ''}
       ${btns('<button class="btn accent" onclick="closeSheet()">เสร็จ</button>')}`);
     load(state.curYm, true);
   }catch(e){ alert(e.message); b.disabled = false; }
 }
-async function addMissing(amt, pay, isExp, b){
+async function addMissing(amt, pay, isExp, b, anchor, isCard){
   b.disabled = true;
-  try{ const r = await apiPost('txAdd', {type: isExp?'รายจ่าย':'รายรับ', amount: amt, desc: 'รายการตกหล่น (ปรับยอดบัญชี)', cat: isExp?'อื่นๆ':'รายรับอื่น', pay, learn:false}); closeSheet(); toast(r.msg); load(state.curYm, true); }
+  try{ const r = await apiPost('txAdd', {type: isExp?'รายจ่าย':'รายรับ', amount: amt, desc: isCard?'รายการรูดตกหล่น (เทียบวงเงินบัตร)':'รายการตกหล่น (ปรับยอดบัญชี)', cat: isExp?'อื่นๆ':'รายรับอื่น', pay, learn:false, anchor}); closeSheet(); toast(r.msg + '\nแก้หมวด/รายละเอียดได้ที่รายการนั้น'); load(state.curYm, true); }
   catch(e){ alert(e.message); b.disabled = false; }
 }
 
@@ -1455,13 +1526,190 @@ function renderPrefs(){
     <label class="chk"><input type="checkbox" id="pfIns" ${p.insOn?'checked':''}> เตือนเบี้ยประกันก่อนครบกำหนด</label>
     <label class="fl">เตือนประกันล่วงหน้ากี่วัน (คั่นด้วย ,)<input class="input" id="pfInsDays" value="${escA(p.insDays||'30,7,1')}"></label>
     <label class="chk"><input type="checkbox" id="pfCard" ${p.cardOn?'checked':''}> เตือนเมื่อบัตรเครดิตตัดรอบ / ใกล้ครบกำหนดจ่าย</label>
+    <div class="grid2"><label class="fl">ภาระสิ้นเดือน: เริ่มนับวันที่<input class="input" id="pfBS" type="number" min="1" max="31" value="${p.burdenS||28}"></label><label class="fl">ช่วงหลักถึงวันที่ (เดือนถัดไป)<input class="input" id="pfBE" type="number" min="1" max="27" value="${p.burdenE||2}"></label></div>
     <div class="btn-row" style="justify-content:flex-end;margin-top:12px"><button class="btn accent sm" onclick="savePrefs(this)">บันทึก</button></div>`;
 }
 async function savePrefs(b){
   b.disabled = true;
-  try{ const cfg = {defPay:$('pfDef').value, askPay:$('pfAsk').checked, insOn:$('pfIns').checked, insDays:$('pfInsDays').value, cardOn:$('pfCard').checked};
+  try{ const cfg = {defPay:$('pfDef').value, askPay:$('pfAsk').checked, insOn:$('pfIns').checked, insDays:$('pfInsDays').value, cardOn:$('pfCard').checked, burdenS:Number($('pfBS').value), burdenE:Number($('pfBE').value)};
     const r = await apiPost('prefsSet', {cfg}); Object.assign(PREFS, cfg); toast(r.msg); }
   catch(e){ alert(e.message); } finally{ b.disabled = false; }
+}
+
+/* ================= V4: ภาระหนี้รายเดือน (พับ/เปิดได้) ================= */
+let BOPEN = {}, BILL = null, LINKALL = false;
+const cardName = id => (ACCS.find(a=>a.id===id)||{}).name || id;
+function setMonthMode(m){
+  if(!$('monthSeg')) return;
+  m = m==='spend' ? 'spend' : 'burden'; LS.set('mmode', m);
+  document.querySelectorAll('#monthSeg button').forEach(b=>b.classList.toggle('on', b.dataset.m===m));
+  $('burdenView').style.display = m==='burden' ? '' : 'none';
+  $('spendView').style.display = m==='spend' ? '' : 'none';
+}
+function renderBurden(d){
+  const B = d.burden; if(!B || !$('burdenList')) return;
+  const cfg = B.cfg, F = B.cycles.find(c=>c.ym===B.focus) || B.cycles[0];
+  const nx = B.cycles.filter(c=>c.ym>B.focus).slice(0,3);
+  const linkedN = (d.debtGroups||[]).filter(g=>g.card && g.nUnpaid).length, cards = ACCS.filter(a=>a.type==='บัตรเครดิต').length;
+  $('burdenHead').innerHTML = !F ? '<div class="empty">ยังไม่มีข้อมูลตารางหนี้</div>' : `
+    <h2>ต้องเตรียมเงิน${esc(F.label)} <span class="eyebrow">ช่วงหลัก ${cfg.S}–${cfg.E}</span></h2>
+    <div class="bhead-big"><div><b>${f(F.unpaid)}</b> <span style="color:var(--mute)">บาท คงค้าง</span>
+      <div class="meta">รวม ${f(F.total)} · จ่ายแล้ว ${f(F.paid)} · ครบ ${thLong(F.from)} – ${thLong(F.to)}</div></div>
+      <div class="btn-row"><button class="btn ghost sm" onclick="openLinks()">🔗 ผูกงวดผ่อนกับบัตร</button><button class="btn ghost sm" onclick="openBurdenCfg()">⚙️ ช่วงวัน</button></div></div>
+    ${nx.length?`<div class="bnext">${nx.map(c=>`<div onclick="toggleCy('${c.ym}',true)"><small>${esc(c.label)}</small><b>${fI(c.total)}</b></div>`).join('')}</div>`:''}
+    ${B.overdue.n?`<div class="hint" style="color:var(--bad)">⚠️ มีงวดค้างก่อนช่วงที่แสดง ${B.overdue.n} รายการ ${f(B.overdue.amt)} บาท (ติ๊กจ่ายได้ที่แท็บ 🔔)</div>`:''}
+    ${cards && !linkedN?`<div class="hint">💡 ยังไม่ได้ผูกงวดผ่อนกับบัตร — ผูกแล้วยอดบิลบัตรจะรวมงวดผ่อน + ยอดรูด เป็นยอดประมาณการที่จะถูกเรียกเก็บ</div>`:''}`;
+  $('burdenList').innerHTML = B.cycles.map(c=>cyHtml(c)).join('');
+}
+function cyHtml(c){
+  const open = BOPEN[c.ym] !== undefined ? BOPEN[c.ym] : c.focus;
+  const pct = c.total ? Math.min(100, c.paid/c.total*100) : 0;
+  const cards = c.items.filter(i=>i.kind==='card'), core = c.items.filter(i=>i.kind==='debt'&&i.core), other = c.items.filter(i=>i.kind==='debt'&&!i.core);
+  const cfg = state.data.burden.cfg;
+  const tag = c.focus ? '<span class="badge warn">รอบถัดไป</span>' : c.past ? (c.unpaid>1?'<span class="badge bad">ผ่านแล้ว · ค้าง</span>':'<span class="badge ok">ผ่านแล้ว</span>') : '';
+  return `<div class="bcy ${open?'open':''} ${c.focus?'focus':''} ${c.past?'past':''}" id="cy_${c.ym}">
+    <button class="bh" onclick="toggleCy('${c.ym}')">
+      <span class="chev">›</span>
+      <div><div class="bl">${esc(c.label)} ${tag}</div><small>ครบ ${dm(c.from)} – ${dm(c.to)} · ${c.n} รายการ${c.nPaid?' · จ่ายแล้ว '+c.nPaid:''}</small></div>
+      <div class="br"><b>${f(c.total)}</b><small>${c.paid>0 ? (c.unpaid>1?'ค้าง '+f(c.unpaid):'จ่ายครบแล้ว ✓') : (c.est?'มียอดประมาณการ':'จากตารางหนี้')}</small></div>
+    </button>
+    <div class="pbar"><i style="width:${pct}%"></i></div>
+    <div class="bd">
+      <div class="bmix"><span class="badge">ช่วง ${cfg.S}–${cfg.E}: ${f(c.core)}</span>${c.other?`<span class="badge">วันอื่นในรอบ: ${f(c.other)}</span>`:''}<span class="badge">จากตารางหนี้ ${f(c.sure)}</span>${c.est?`<span class="badge warn">ส่วนยอดรูดบัตร ${f(c.est)}</span>`:''}</div>
+      ${cards.length?`<div class="bsec">💳 บิลบัตร</div>`+cards.map(billRow).join(''):''}
+      ${core.length?`<div class="bsec">🧾 ครบช่วง ${cfg.S}–${cfg.E}</div>`+core.map(debtRowB).join(''):''}
+      ${other.length?`<div class="bsec">📌 ครบวันอื่นในรอบเดียวกัน</div>`+other.map(debtRowB).join(''):''}
+      ${c.items.length?'':'<div class="empty">🎉 ไม่มีรายการในรอบนี้</div>'}
+      <div class="row" style="margin-top:6px;border-top:1px solid var(--line);border-bottom:0"><div class="main"><strong>หนี้ผ่อนคงเหลือหลังรอบนี้</strong><small>งวดที่ยังไม่จ่ายและครบกำหนดหลัง ${thLong(c.to)}</small></div><div class="amt neg">${f(c.remainAfter)}</div></div>
+    </div></div>`;
+}
+function debtRowB(i){
+  return `<div class="row"><div class="lead"><div class="ico">🧾</div><div class="main"><strong>${esc(i.name)}</strong><small>${thLong(i.due)} · งวด ${esc(i.n)}${i.cred?' · '+esc(i.cred):''}${i.orphan?' · ⚠️ ผูกกับบัตรที่ไม่มีแล้ว':''}</small></div></div>
+    <div style="text-align:right"><div class="amt">${f(i.amt)}</div>${i.paid?'<span class="badge ok">จ่ายแล้ว</span>':dueBadge(i.days)}</div>
+    ${i.paid?'':`<button class="pay-btn" title="ติ๊กจ่ายแล้ว" onclick="payRow(${i.row},this)">✓</button>`}</div>`;
+}
+function billRow(b){
+  const sub = b.stmt!==null ? 'ตามใบแจ้งหนี้' + (Math.abs(b.stmt-b.est)>=1 ? ` (ต่างจากที่จด ${b.stmt>b.est?'+':''}${f(b.stmt-b.est)})` : ' ✓ ตรงกับที่จด')
+    : [b.instN?`ผ่อน ${b.instN} รายการ ${f(b.instSum)}`:'', b.swipeN?`รูด ${b.swipeN} รายการ ${f(b.swipe)}`:''].filter(Boolean).join(' + ') + ' · ประมาณการ';
+  return `<div class="row tap cc-row" onclick="openBill('${escA(b.card)}','${b.due}')"><div class="lead"><div class="ico">💳</div><div class="main"><strong>${esc(b.cardName)} · ${esc(b.label)}</strong><small>${thLong(b.due)} · ${esc(sub)}</small></div></div>
+    <div style="text-align:right"><div class="amt">${b.stmt===null?'~':''}${f(b.total)}</div>${b.paid?'<span class="badge ok">จ่ายแล้ว</span>':b.paidAmt>0?`<span class="badge warn">จ่าย ${f(b.paidAmt)}</span>`:dueBadge(b.days)}</div>
+    <span style="color:var(--mute);font-size:18px">›</span></div>`;
+}
+function toggleCy(ym, force){
+  const el = $('cy_'+ym); if(!el) return;
+  const on = force ? true : !el.classList.contains('open');
+  el.classList.toggle('open', on); BOPEN[ym] = on;
+  if(force) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function openBurdenCfg(){
+  const p = PREFS || {};
+  openSheet('⚙️ ช่วงวันของรอบสิ้นเดือน', `
+    <div class="grid2">
+      <label class="fl">เริ่มนับกำหนดจ่ายวันที่ (ของเดือนนั้น)<input class="input" id="bfS" type="number" min="1" max="31" inputmode="numeric" value="${p.burdenS||28}"></label>
+      <label class="fl">ช่วงหลักถึงวันที่ (ของเดือนถัดไป)<input class="input" id="bfE" type="number" min="1" max="27" inputmode="numeric" value="${p.burdenE||2}"></label>
+    </div>
+    <div class="hint">ตัวอย่าง 28 และ 2 → "สิ้นเดือน พ.ย." = งวดที่ครบ 28 พ.ย.–2 ธ.ค. เป็นช่วงหลัก ส่วนงวดที่ครบ 3–27 ธ.ค. แสดงแยกเป็น "วันอื่นในรอบเดียวกัน" (จ่ายจากเงินเดือนรอบเดียวกัน) เพื่อไม่ให้มีงวดตกหล่น</div>
+    ${btns('<button class="btn accent" onclick="saveBurdenCfg(this)">บันทึก</button>')}`);
+}
+async function saveBurdenCfg(b){
+  b.disabled = true;
+  try{ const cfg = {burdenS:Number($('bfS').value), burdenE:Number($('bfE').value)}; const r = await apiPost('prefsSet',{cfg}); Object.assign(PREFS,cfg); BOPEN={}; closeSheet(); toast(r.msg); load(state.curYm,true); }
+  catch(e){ alert(e.message); b.disabled = false; }
+}
+
+/* ---------- บิลบัตร 1 ใบ: ประมาณการ vs ใบแจ้งหนี้ + จ่ายบิล ---------- */
+async function openBill(id, due){
+  openSheet('🧾 บิลบัตร', '<div class="empty"><span class="loader"></span></div>');
+  try{
+    const b = BILL = await apiGet('bill', {id, due: due||''});
+    const remain = Math.max(0, Math.round((b.total - b.paidAmt)*100)/100);
+    $('sheetTitle').textContent = '🧾 ' + b.cardName + ' · ' + b.label;
+    $('sheetBody').innerHTML = `
+      <div class="bill-box">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span>${b.stmt!==null?'ยอดตามใบแจ้งหนี้':'ประมาณการที่จะถูกเรียกเก็บ'}</span><b style="font-family:var(--serif);font-size:26px;font-weight:500">${f(b.total)}</b></div>
+        <small style="color:var(--mute)">${b.fromS?'รอบบิล '+thLong(b.fromS)+' – '+thLong(b.toS)+' · ':''}ครบกำหนดจ่าย ${thLong(b.dueS)} ${dueBadge(b.days)}</small>
+        <div class="row" style="margin-top:6px"><div class="main">งวดผ่อนที่ผูกไว้ (${b.instN})</div><div class="amt">${f(b.instSum)}</div></div>
+        <div class="row"><div class="main">ยอดรูดที่จดในรอบนี้ (${b.swipeN})</div><div class="amt">${b.fromS?f(b.swipe):'–'}</div></div>
+        <div class="row"><div class="main"><strong>รวมตามที่จด</strong></div><div class="amt">${f(b.est)}</div></div>
+        ${b.paidAmt>0?`<div class="row"><div class="main">จ่ายแล้ว${b.paidAtS?' ('+thLong(b.paidAtS)+')':''}</div><div class="amt pos">${f(b.paidAmt)}</div></div>`:''}
+        ${!b.hasCycle?'<div class="hint" style="color:var(--warn)">ยังไม่ได้ตั้งวันตัดรอบ/วันครบกำหนดของบัตรนี้ จึงยังคำนวณยอดรูดตามรอบบิลไม่ได้ (ตั้งได้ที่ ✎ ในการ์ดบัตร)</div>':''}
+      </div>
+      <div class="grid2">
+        <label class="fl">ยอดตามใบแจ้งหนี้จริง<input class="input" id="stAmt" type="number" step="0.01" inputmode="decimal" placeholder="กรอกเมื่อได้ใบแจ้งหนี้" value="${b.stmt??''}" oninput="stmtDiff()"></label>
+        <label class="fl">ยอดชำระขั้นต่ำ<input class="input" id="stMin" type="number" step="0.01" inputmode="decimal" value="${b.stmtMin??''}"></label>
+      </div>
+      <div id="stDiff" class="hint"></div>
+      <div class="btn-row" style="margin-top:10px;justify-content:space-between">
+        <button class="btn sm" onclick="saveStmt(this)">💾 บันทึกยอดใบแจ้งหนี้</button>
+        ${b.paid?'<span class="badge ok">จ่ายบิลนี้ครบแล้ว</span>':`<button class="btn sage" onclick="openCardPay()">💸 บันทึกการจ่ายบิล${remain?' '+f(remain):''}</button>`}
+      </div>
+      <div class="bsec">งวดผ่อนที่ผูกกับบิลนี้ <a href="javascript:openLinks()" style="font-weight:400">· แก้การผูก</a></div>
+      ${b.inst.length ? b.inst.map(r=>`<div class="row"><div class="main"><strong>${esc(r.name)}</strong><small>งวด ${esc(r.n)} · ครบ ${thLong(r.due)}</small></div><div style="text-align:right"><div class="amt">${f(r.amt)}</div>${r.paid?'<span class="badge ok">จ่ายแล้ว</span>':''}</div></div>`).join('') : '<div class="empty" style="padding:10px">ยังไม่มีงวดผ่อนที่ผูกกับบิลนี้</div>'}
+      <div class="bsec">รายการรูดที่จดในรอบนี้ (แตะเพื่อแก้)</div>
+      ${b.tx.length ? txList(b.tx, true) : '<div class="empty" style="padding:10px">ไม่มีรายการรูดที่จดในรอบนี้</div>'}
+      ${btns('')}`;
+    stmtDiff();
+  }catch(e){ $('sheetBody').innerHTML = '<div class="empty">โหลดไม่สำเร็จ: '+esc(e.message)+'</div>'; }
+}
+function stmtDiff(){
+  const el = $('stDiff'), v = $('stAmt').value; if(!el) return;
+  if(v===''){ el.textContent = 'ได้ใบแจ้งหนี้แล้ว กรอกยอดเพื่อเทียบกับที่จด — ถ้าไม่ตรง ระบบจะบอกส่วนต่าง'; el.style.color=''; return; }
+  const d = Math.round((Number(v) - BILL.est)*100)/100;
+  if(Math.abs(d) < 1){ el.style.color='var(--sage-ink)'; el.textContent = '✅ ตรงกับที่จดไว้ทุกยอด'; }
+  else if(d > 0){ el.style.color='var(--bad)'; el.textContent = `⚠️ ใบแจ้งหนี้สูงกว่าที่จด ${f(d)} บาท → อาจลืมจดรายการรูด, มีดอกเบี้ย/ค่าธรรมเนียม หรือยังไม่ได้ผูกงวดผ่อนบางรายการ — เทียบรายการในใบแจ้งหนี้กับรายการด้านล่าง`; }
+  else { el.style.color='var(--warn)'; el.textContent = `💡 ใบแจ้งหนี้ต่ำกว่าที่จด ${f(-d)} บาท → อาจจดซ้ำ จดผิดบัตร ผูกงวดผ่อนผิดบิล หรือบางรายการยังไม่เข้ารอบนี้`; }
+}
+async function saveStmt(b){
+  b.disabled = true;
+  try{ const r = await apiPost('stmtSave', {card: BILL.card, due: BILL.dueS, amount: $('stAmt').value, min: $('stMin').value}); toast(r.msg); load(state.curYm, true); openBill(BILL.card, BILL.dueS); }
+  catch(e){ alert(e.message); b.disabled = false; }
+}
+function openCardPay(){
+  const b = BILL, remain = Math.max(0, Math.round((b.total - b.paidAmt)*100)/100);
+  const src = [...new Set(ACCS.filter(a=>a.type!=='บัตรเครดิต').map(a=>((a.pays||'').split(',')[0]||'').trim()||a.name).concat(['เงินสด']))];
+  openSheet('💸 จ่ายบิล ' + b.cardName + ' · ' + b.label, `
+    <div class="grid2">
+      <label class="fl">ยอดที่จ่าย (บาท)<input class="input amt-in" id="cpAmt" type="number" step="0.01" inputmode="decimal" value="${remain||''}"></label>
+      <label class="fl">วันที่จ่าย<input class="input" id="cpDate" type="date" value="${state.data?.today||isoLocal(new Date())}"></label>
+    </div>
+    <label class="fl">จ่ายจากบัญชี<select class="input" id="cpFrom">${src.map(s=>`<option>${esc(s)}</option>`).join('')}</select></label>
+    ${b.instUnpaid>0?`<label class="chk"><input type="checkbox" id="cpTick" checked> ติ๊กงวดผ่อนที่ผูกกับบิลนี้ ${b.inst.filter(r=>!r.paid).length} รายการ (${f(b.instUnpaid)} บ.) ว่าจ่ายแล้วในตารางหนี้</label>`:''}
+    <div class="hint">ระบบจะบันทึก: งวดผ่อน = "ชำระหนี้" · ส่วนที่เหลือ = "โอนจ่ายบัตร" (ไม่นับเป็นรายจ่ายซ้ำ เพราะยอดรูดจดเป็นรายจ่ายไปแล้ว) และบวกคืนวงเงินบัตรให้อัตโนมัติ</div>
+    ${btns('<button class="btn sage" id="cpSave" onclick="saveCardPay(this)">✓ บันทึกการจ่าย</button>')}`);
+}
+async function saveCardPay(b){
+  b.disabled = true;
+  try{
+    const r = await apiPost('cardPay', {card: BILL.card, due: BILL.dueS, amount: $('cpAmt').value, from: $('cpFrom').value, date: $('cpDate').value, tick: $('cpTick') ? $('cpTick').checked : true});
+    closeSheet(); toast(r.msg); load(state.curYm, true);
+  }catch(e){ alert(e.message); b.disabled = false; }
+}
+
+/* ---------- ผูกงวดผ่อน (ตารางหนี้) กับบัตร ---------- */
+function openLinks(){
+  const G = state.data?.debtGroups || [], cards = ACCS.filter(a=>a.type==='บัตรเครดิต');
+  if(!cards.length){ toast('ยังไม่มีบัตรเครดิต — เพิ่มบัตรที่แท็บ "กระเป๋า" ก่อนค่ะ'); return; }
+  const L = G.filter(g=>LINKALL || g.nUnpaid>0 || g.card || g.orphan);
+  openSheet('🔗 ผูกงวดผ่อนกับบัตร', `
+    <div class="hint" style="margin-top:0">เลือกว่างวดผ่อนรายการไหนถูกเรียกเก็บรวมในใบแจ้งหนี้ของบัตรใบไหน → ยอดบิลบัตร = งวดผ่อนที่ผูก + ยอดรูดที่จด และไม่นับซ้ำในภาระรายเดือน · เลือกในชีต "ตารางหนี้" คอลัมน์ "ผูกบัตร" ก็ได้ผลเหมือนกัน</div>
+    ${L.length ? L.map(g=>`<div class="row linkrow"><div class="main"><strong>${esc(g.name)}</strong><small>${esc(g.cred)} · ${esc(g.code)} · ${g.nUnpaid?'ค้าง '+g.nUnpaid+' งวด '+f(g.unpaid):'จ่ายครบแล้ว'}${g.suggest&&!g.card&&!g.orphan?' · 💡 อาจเป็น '+esc(cardName(g.suggest)):''}</small></div>
+      <select class="input lk" data-code="${escA(g.code)}" data-orig="${escA(g.orphan?'__orphan':g.card)}">
+        <option value="">— ไม่ผูก —</option>${cards.map(c=>`<option value="${escA(c.id)}" ${c.id===g.card?'selected':''}>${esc(c.name)}</option>`).join('')}${g.orphan?`<option value="__orphan" selected>⚠️ ${esc(g.link)} (ไม่พบบัตรนี้แล้ว)</option>`:''}
+      </select></div>`).join('') : '<div class="empty">ไม่มีงวดผ่อนในตารางหนี้</div>'}
+    <label class="chk"><input type="checkbox" ${LINKALL?'checked':''} onchange="LINKALL=this.checked;openLinks()"> แสดงรายการที่จ่ายครบแล้วด้วย</label>
+    ${btns('<button class="btn accent" onclick="saveLinks(this)">บันทึกการผูก</button>')}`);
+}
+async function saveLinks(b){
+  const map = {};
+  document.querySelectorAll('select.lk').forEach(s=>{ if(s.value!==s.dataset.orig && s.value!=='__orphan') map[s.dataset.code] = s.value; });
+  if(!Object.keys(map).length){ closeSheet(); return; }
+  b.disabled = true;
+  try{ const r = await apiPost('debtLink', {map}); closeSheet(); toast(r.msg); load(state.curYm, true); }
+  catch(e){ alert(e.message); b.disabled = false; }
+}
+function linkSel(x){
+  const cards = ACCS.filter(a=>a.type==='บัตรเครดิต'); if(!cards.length) return '';
+  return `<label class="fl">ผูกกับบัตร (ใช้กับทุกงวดของรหัสนี้)<select class="input" id="dLink"><option value="">— ไม่ผูก —</option>${cards.map(c=>`<option value="${escA(c.id)}" ${c.id===(x.card||'')?'selected':''}>${esc(c.name)}</option>`).join('')}${x.link&&!x.card?`<option value="__orphan" selected>⚠️ ${esc(x.link)} (ไม่พบบัตร)</option>`:''}</select></label>`;
 }
 </script>
 </body>
